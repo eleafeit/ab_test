@@ -60,6 +60,8 @@ Any behavioral differences between these groups is **caused by the treatments** 
     - Test & roll
     - Multi-armed bandits
 - When you can't randomize (time permitting)
+    - Propensity matching
+    - Causal forests
 
 
 ## About Elea McDonnell Feit
