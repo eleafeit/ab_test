@@ -7,13 +7,17 @@ output: ioslides_presentation
 widescreen: true
 ---
 
+```{r}
+setwd("~/repos/ab_test/code")
+```
+
 ## 
 ![](images/ab_test.png){width=85%}
 
 Source: splitmetrics.com
 
 
-## Example A/B Test
+## Example A/B test
 
 <div class="columns-2">
  ![](images/smartwool.png){width=95%}

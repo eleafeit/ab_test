@@ -68,7 +68,6 @@ prop.test(table(d$sub_cpgn, d$click))
 mosaicplot(table(d$sub_cpgn, d$purch>0))
 prop.test(table(d$sub_cpgn, d$purch==0))
 plot(purch ~ sub_cpgn, data=d)
-by(d, d$sub_cpgn, mean)
 
 d <- d[,c(1:2, 10:13, 3:9)]
-write.csv(d, file="~/repos/ab_test/code/test_data.csv")
+write.csv(d, file="~/repos/ab_test/code/test_data.csv", row.names = FALSE)

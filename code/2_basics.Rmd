@@ -1,0 +1,63 @@
+---
+title: 'Advanced AB Testing'
+subtitle: "Basics"
+date: "6/8/2019"
+output: ioslides_presentation
+widescreen: true
+---
+
+```{r, echo=FALSE}
+setwd("~/repos/ab_test/code")
+```
+
+# Analysis of A/B tests
+
+## Example
+The email A/B test we will analyze was conducted by an online-only wine store. 
+
+![](images/wine_store.png){width=80%}
+
+
+## Example
+Test setting: email to retailer customers
+
+Unit: customer (email)
+
+Treatments: email version A, email version B, holdout
+
+Reponse: open, click and 1-month purchase ($)
+
+Selection: All active customers
+
+Assignment: Randomly assigned (1/3 each)
+
+
+## Example data
+```{r}
+d <- read.csv("test_data.csv")
+head(d)
+```
+
+
+## Example data
+```{r}
+summary(d)
+```
+
+
+## Test data
+
+
+## Test results
+
+
+# Design of A/B Tests
+
+## Seven key questions
+1. Business question
+2. Test setting (lab v. field)
+3. Unit of analysis (visit, customer, store)
+4. Treatments
+5. Response variable(s)
+6. Selection of units
+7. Assignment
