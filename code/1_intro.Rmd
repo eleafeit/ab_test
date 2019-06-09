@@ -49,7 +49,7 @@ Any behavioral differences between these groups is **caused by the treatments** 
 
 ## Workshop plan {.smaller}
 
-- A/B Test Basics (review?)
+- Test Analysis Basics (review?)
     - Randomization checks
     - Analysis
     - Sample size planning

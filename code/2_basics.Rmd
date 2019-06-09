@@ -1,63 +1,400 @@
 ---
 title: 'Advanced AB Testing'
-subtitle: "Basics"
+subtitle: "Test Analysis Basics"
 date: "6/8/2019"
 output: ioslides_presentation
 widescreen: true
+incremental: true
 ---
 
 ```{r, echo=FALSE}
 setwd("~/repos/ab_test/code")
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 ```
 
-# Analysis of A/B tests
+# Test data
 
-## Example
+## Example email A/B test
 The email A/B test we will analyze was conducted by an online-only wine store. 
 
 ![](images/wine_store.png){width=80%}
 
 
-## Example
-Test setting: email to retailer customers
+## Wine retailer email test
+**Test setting**: email to retailer customers
 
-Unit: customer (email)
+**Unit**: customer (email address)
 
-Treatments: email version A, email version B, holdout
+**Treatments**: email version A, email version B, holdout
 
-Reponse: open, click and 1-month purchase ($)
+**Reponse**: open, click and 1-month purchase ($)
 
-Selection: All active customers
+**Selection**: all active customers
 
-Assignment: Randomly assigned (1/3 each)
+**Assignment**: randomly assigned (1/3 each)
 
 
-## Example data
+## Wine retailer email test data
 ```{r}
 d <- read.csv("test_data.csv")
 head(d)
 ```
 
+## Types of variables associated with a test {.build}
+- **Treatment indicator** (x's)
+    - Which (randomized) treatment was received  
+    
+- **Response** (y's)
+    - Outcome(s) measured for each customer. Aka the DV or dependant variable.  
+    
+- **Baseline variables** ("z's")
+    - Other stuff we know about customers **prior** to the randomization  
 
-## Example data
+<div class="centered">
+<div class="red2">
+Everything measured after the randomization is an outcome
+</div>
+</div>
+
+
+## Treatment indicator
 ```{r}
-summary(d)
+summary(d$group)
+```
+
+## Responses
+- open test email (load images)
+- click test email to visit website
+- purchases ($) in 30 days after email sent
+```{r}
+summary(d[,c("open", "click", "purch")])
+```
+
+## Baseline variables
+- days since last purchase
+- website visits
+- total past purchases ($)
+```{r}
+summary(d[,c("last_purch", "visits", "past_purch")]) 
+```
+
+## More baseline variables
+- total past purchases by category ($)
+```{r}
+summary(d[, c("chard", "sav_blanc", "syrah", "cab")]) 
+```
+
+\
+
+<div class="centered">
+<div class="red2">
+Whoa! That's a lot of chardonnay for one customer!
+</div>
+</div>
+
+# Analysis of A/B tests
+
+## {.build .bigger .flexbox .vcenter}
+
+<div class="blue">
+What is the first question you should ask about an A/B test? 
+</div>
+
+<div class="centered">
+~~Did the treatment affect the response?~~
+</div>
+
+<div class="centered">
+Was the randomization done correctly? 
+</div>  
+
+\ 
+
+<div class="centered">
+<div class="blue">
+How could we check the randomization with the data?
+</div>
+</div>
+
+## Randomization checks
+Randomization checks confirm that the baseline variables are distributed similarly for the treatment and control groups. 
+
+**Averages of baseline variables by treatment group**
+```{r}
+aggregate(cbind(last_purch, visits, past_purch, chard, sav_blanc, syrah, cab) ~ group,
+           data=d, mean)
+```
+```{r, echo=FALSE}
+#d %>% group_by(group) %>% summarize(mean(last_purch), mean(visits), mean(past_purch), #mean(past_purch > 0))
+```
+
+## Randomization checks
+
+**Purchase incidence by group**
+```{r}
+aggregate(past_purch > 0 ~ group, data=d, mean)
+```
+```{r, echo=FALSE}
+# d %>% group_by(group) %>% summarize(mean(past_purch > 0))
+```
+
+## Randomization checks
+The distributions of baseline variables should also be the same between groups.
+
+```{r, echo=FALSE, warning=FALSE}
+d %>% filter(past_purch > 0) %>% 
+ggplot(aes(x=past_purch, fill=group)) + 
+  geom_histogram(binwidth = 25, alpha=0.2, position="identity") +
+  xlim(0, 2000) + 
+  xlab("Past Purchases ($)") + ylab("Customers") + 
+  labs(title="Distribution of past purchases by group")
+```
+
+## Randomization checks
+
+```{r, echo=FALSE, warning=FALSE}
+d %>% filter(visits > 0) %>% 
+ggplot(aes(x=visits, fill=group)) + 
+  geom_histogram(binwidth = 1, alpha=0.2, position="identity") +
+  xlim(0, 50) + 
+  xlab("Days Since Last Purchase") + ylab("Customers") + 
+  labs(title="Distribution of website visits by group")
+```
+
+## Exercise
+
+Compare the past purchases in each wine category to confirm that the randomization produced groups with similar distributions.
+
+
+## Did the treatments affect the response?
+```{r, echo=FALSE}
+# d %>% group_by(group) %>% summarize(mean(open), mean(click), mean(purch))
+```
+```{r}
+aggregate(cbind(open, click, purch) ~ group, data=d, FUN=mean)
+```
+Email A looks better for opens and clicks, but maybe not purchases. Both emails seem to generate higher average purchases than the control.
+
+
+## Does email A have higher open rate than email B? 
+```{r}
+d_treat <- d[d$group != "ctrl",]
+d_treat$group <- droplevels(d_treat$group)
+prop.test(xtabs(~ group + open, data=d_treat)[,2:1]) 
 ```
 
 
-## Test data
+## Does email A have a higher open rate than email B?
+```{r, echo=FALSE}
+mosaicplot(xtabs(~ group + open, data=d), 
+           main="Wine Retailer Test: Email Opens")
+```
+
+## Does email A have a higher click rate than email B? 
+```{r}
+d_treat <- d[d$group != "ctrl",]
+d_treat$group <- droplevels(d_treat$group)
+prop.test(xtabs(~ group + click, data=d_treat)[,2:1])
+```
+
+Note that we analyze click rate among all who *received* the email. There may be systematic differences in the types of customers who opened email A versus email B. 
+ 
+ 
+## Does email A have higher opens and clicks than email B?
+```{r, echo=FALSE}
+d %>% filter(group != "ctrl") %>% group_by(group) %>% 
+  summarize(open=mean(open), click=mean(click)) %>%
+  gather(response, mean, -group) %>%
+  ggplot(aes(fill=response, y=mean, x=group)) + 
+  geom_bar(position="dodge", stat="identity") + 
+  ylab("Response Rate") + xlab("")
+```
+
+- Email A has a significantly higher open rate than email B. The diference in open rate is between 5.7% and 7.0% (95% CI).
+- Email A has a significantly higher click rate than email B. The difference is between 3.8% and 4.6% (95% CI).   
 
 
-## Test results
+## Do any groups have higher average purchases? 
+```{r, echo=FALSE, warning=FALSE}
+library(tidyr)
+d %>% 
+  ggplot(aes(y=purch, x=group)) + 
+  geom_boxplot() +
+  ylab("30-Day Purchases ($)") + xlab("") + 
+  scale_y_log10()
+```
 
 
-# Design of A/B Tests
+## Does groups have higher average purchases? 
+```{r, echo=FALSE, warning=FALSE}
+library(tidyr)
+d %>%
+  ggplot(aes(y=purch, x=group)) + 
+  geom_violin() +
+  ylab("30-Day Purchases ($)") + xlab("") + 
+  scale_y_log10()
+```
 
-## Seven key questions
+
+## Does groups have higher average purchases? 
+```{r, echo=FALSE, warning=FALSE}
+library(tidyr)
+d %>%
+  ggplot(aes(y=purch, x=group)) + 
+  geom_dotplot(binaxis='y', stackdir='center',
+               stackratio=0.1, dotsize=0.1) +
+  ylab("30-Day Purchases ($)") + xlab("") 
+```
+
+## Does email A generate more purchases than B? 
+```{r}
+t.test(purch ~ group, data=d[d$group != "ctrl",])
+```
+There is not a significant difference in average purchases between email A and email B. 
+
+
+## Do emails generate higher purchases ? 
+```{r}
+d$email <- d$group == "email_A" | d$group == "email_B"
+t.test(purch ~ email, data=d)
+```
+Those who received an email have \$0.91 to \$1.94 higher average purchases (95% CI).
+
+## Summary of findings (suitable for texting)
+- Email A has significantly higher opens and clicks than email B, but purchase are similar for both emails -> Send email A!
+- Both emails generate higher average purchases than the control -> Send emails! 
+
+# Design of A/B tests
+
+## Seven key questions 
 1. Business question
 2. Test setting (lab v. field)
 3. Unit of analysis (visit, customer, store)
 4. Treatments
 5. Response variable(s)
 6. Selection of units
-7. Assignment
+7. Assignment to treatments
+8. Sample size
+
+<div class="centered">
+<div class="blue">
+If you can answer these questions, you have a test plan. 
+</div>
+</div>
+
+## Email test
+
+**Business question**: Does email work? If so which email is better? 
+
+**Test setting**: email to retailer customers
+
+**Unit**: email address
+
+**Treatments**: email version A, email version B, holdout
+
+**Reponse**: open, click and 30-day purchase ($)
+
+**Selection**: all active customers
+
+**Assignment**: randomly assigned (1/3 each)
+
+**Sample size**: 123,988 emails
+
+
+## Typical website test
+
+**Business question**: Which version of a page? 
+
+**Test setting**: website (field)
+
+**Unit of analysis**: visitor (cookie-tracked)
+
+**Treatments**: versions A and B
+
+**Response variable**: clicks, conversions
+
+**Selection of units**: all who visit
+
+**Assignment to treatments**: random (by testing sw)
+
+**Sample size**: ???
+
+
+## Sample size planning {.bigger}
+<div class="centered">
+$n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 s^2}{d^2} \right)$
+
+\
+
+
+<div class="red">
+WTF? Seriously?
+</div>
+</div> 
+
+## Sample size planning: key ideas
+- My data is noisy ($s$), so the group with the higher average in the test not always have the higher.   
+
+- There are two mistakes you can make: 
+    - Declare the treatments different, when they are the same (Type I)
+    - Declare the treatment the same, when they are different (Type II)
+    
+- I want a low probability of both of those mistakes ($\alpha$, $\beta$) given a specific known difference between treatments ($d$)
+
+
+## Sample size calculator
+
+Sample size to detect at \$1 difference in average 30-day purchases. 
+```{r}
+sd(d$purch)
+power.t.test(sd=sd(d$purch), delta=1, sig.level=0.95, power=0.80)
+```
+We need 3272 in each group. 
+
+
+## Sample size planning
+
+There is a slightly different formula for 
+
+**Continous outcomes (eg money, time-on-site)**  
+
+$n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 s^2}{d^2} \right)$
+
+**Binary outcomes (eg conversions)**  
+
+$n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 p (1-p)}{d^2} \right)$
+
+
+## Sample size calculator
+**Binary outcomes**
+```{r}
+power.prop.test(p1=0.07, p2=0.07 + 0.01, sig.level=0.95, power=0.80)
+```
+
+## Sample size calculator
+
+![](images/evans_sample_size.png){width=80%}
+
+
+## Sample size calculators
+
+**A word of caution**: There are a lot of different ideas about sample size calculations floating around (including some of my own). These formulas differ on what assumptions they may about what you are trying to do, but it is very hard to figure out what assumptions are being made (even for experts). 
+
+A decent sample size calculation will help you identify whether you are likely to end up with way too much or too little data. 
+
+
+## Things you just learned (or reviewed)
+- Three types of variables in test data
+    - Treatment (x's)
+    - Response (y's)
+    - Baseline variables (z's)
+- Analyzing tests with binary outcomes
+    - Bar plot or mosaic plot
+    - `prop.test()` for significance
+- Analyzing tests with continuous outcomes
+    - Dot plots or violin plots
+    - `t.test()` for significance
+- Eight key questions that define a test plan
+- Sample size planning calculations
