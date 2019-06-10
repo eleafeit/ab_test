@@ -7,7 +7,7 @@ widescreen: true
 incremental: true
 ---
 
-```{r, echo=FALSE}
+```{r setup, echo=FALSE}
 setwd("~/repos/ab_test/code")
 library(ggplot2)
 library(dplyr)
