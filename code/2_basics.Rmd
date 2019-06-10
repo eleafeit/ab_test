@@ -218,7 +218,6 @@ d %>% filter(group != "ctrl") %>% group_by(group) %>%
 
 ## Do any groups have higher average purchases? 
 ```{r, echo=FALSE, warning=FALSE}
-library(tidyr)
 d %>% 
   ggplot(aes(y=purch, x=group)) + 
   geom_boxplot() +
@@ -229,7 +228,6 @@ d %>%
 
 ## Does groups have higher average purchases? 
 ```{r, echo=FALSE, warning=FALSE}
-library(tidyr)
 d %>%
   ggplot(aes(y=purch, x=group)) + 
   geom_violin() +
@@ -240,7 +238,6 @@ d %>%
 
 ## Does groups have higher average purchases? 
 ```{r, echo=FALSE, warning=FALSE}
-library(tidyr)
 d %>%
   ggplot(aes(y=purch, x=group)) + 
   geom_dotplot(binaxis='y', stackdir='center',
@@ -255,7 +252,7 @@ t.test(purch ~ group, data=d[d$group != "ctrl",])
 There is not a significant difference in average purchases between email A and email B. 
 
 
-## Do emails generate higher purchases ? 
+## Do emails generate higher purchases? 
 ```{r}
 d$email <- d$group == "email_A" | d$group == "email_B"
 t.test(purch ~ email, data=d)

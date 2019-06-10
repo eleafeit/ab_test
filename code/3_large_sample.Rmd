@@ -8,6 +8,9 @@ widescreen: yes
 ---
 
 ```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 ```
 
 # Slicing and dicing
@@ -39,47 +42,117 @@ widescreen: yes
 **Assignment**: randomly assigned (1/3 each)
 
 
-## Experiments within experiments
-Consider the customers who have made a purchase in the last 60 days.  Within that subset, customers were randomly assigned to recieve email A, email B or no email. 
-```{r}
+## Baseline variable: days since last purchase
+```{r, echo=FALSE}
 d <- read.csv("test_data.csv")
-hist(d$last_purch)
+hist(d$last_purch, 
+     xlab="Days Since Last Purchase", ylab="Customers", 
+     main="Histogram of Days Since Last Purchase")
 ```
 
 
-## Slicing and dicing
+## Experiments within experiments
+Consider the customers who have made a purchase in the last 60 days.  
 
-We can analyze the data for a subgroup as it's own test test.
+Within that subset, customers were randomly assigned to recieve email A, email B or no email.  
 
+So, we can analyze the data for a subgroup as it's own test test by slicing down and then re-analyzing.
+
+
+## Slicing and dicing: recent buyers versus aged customers
 ```{r}
+aggregate(cbind(open, click, purch) ~ group + (last_purch < 60), 
+          data=d, FUN=mean)
+```
+
+- Recent buyers buy more on average  
+- The email seems to produce a stronger effect on purchases for more recent buyers (~\$2 versus \$1)    
+
+
+## Is email more effective for recent buyers? 
+```{r, echo=FALSE, warning=FALSE}
+d$email <- d$group !="ctrl"
+d %>% filter(email==TRUE) %>%
+  ggplot(aes(y=purch, x=group)) + 
+  geom_dotplot(binaxis='y', stackdir='center',
+               stackratio=0.1, dotsize=0.1) +
+  ylab("30-Day Purchases ($)") + xlab("") + 
+  scale_y_log10()
 ```
 
 
-## 
-![](images/)
+## Significance test: recent buyers
+```{r}
+t.test(purch ~ email, data=d[d$last_purch < 60,])
+```
+
+## Significance test: non-recent buyers
+```{r}
+t.test(purch ~ email, data=d[d$last_purch > 60,])
+```
 
 
-## Baseline variables
+## Significance test: recent buyers
+```{r}
+slice <- d[d$last_purch < 60 & d$group != "ctrl", ]
+t.test(open ~ group, data=slice)
+```
+
+
+## Every A/B test is a stack of A/B tests 
+<div class="centered">
+![](images/stacked_tomatos.jpg){width=80%}
+</div>
+
+## Baseline varaibles
+Anyone who keeps historic data on customers or visitors has lots of baseline variables available: 
 - days since last purchase
 - website visits
 - total past purchases ($)
-```{r}
-d <- read.csv("test_data.csv")
-summary(d[,c("last_purch", "visits", "past_purch")]) 
-```
-
-
-## More baseline variables
 - total past purchases by category ($)
+
+## Exercise
+Re-analyze the opens, clicks and purchases for people who have bought syarh in the past. 
 ```{r}
-summary(d[, c("chard", "sav_blanc", "syrah", "cab")]) 
+summary(d$syrah > 0)
 ```
 
-## Repeated testing
+
+## Repeated significance testing
+Don't forget that 1 in 20 significance tests at 95% confidence will be significant, when there is no effect. You will get false positives, especially when slicing and dicing. 
+
+When you think you've found a golden ticket, re-test before betting the company.
+
+
+## Slicing and dicing: Summary
+Slicing and dicing will reveal two things about subgroups of customers. 
+
+1. Subgroups will vary in how much they engage in behaviors
+    - Recent buyers tend to have higher average purchases in the future
+   
+2. Subgroups vary in how they respond to treatments
+    - Recent buyers are more affected by the email
+
+
+## Heterogeneous treatment effects
+"Experiments are used because they provide credible estimates of the effect of an intervention for a sample population. But underlying this average effect for a sample may be **substantial variation in how particular respondents respond to treatments**: there may be **heterogeneous treatment effects**."
+-- Athey and Imbens, 2015
+
+## Heterogeneous treatment effects and targeting
+Marketers should be interested in heterogeneous treatment effects when there is opportunity for targeting. 
+
+email -> high potential for targeting  
+
+website -> less potential for targeting
+
 
 # Uplift modeling
 
 ## Analyzing experiments with regression
+So far, we have used hypothesis tests (`t.test()` and `prop.test()`) to assess the statistical significance of test differences.  
 
-## Incorporating hetero
-# 
+## Incorporating heterogeneous treatment effects
+
+# Causal forests
+
+ 
