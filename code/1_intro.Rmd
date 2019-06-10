@@ -1,13 +1,14 @@
 ---
 title: "Advanced A/B Testing"
-subtitle: "Introduction"
 author: "Elea McDonnell Feit"
 date: "6/7/2019"
-output: ioslides_presentation
-widescreen: true
+output:
+  ioslides_presentation: default
+subtitle: Introduction
+widescreen: yes
 ---
 
-```{r}
+```{r setup, echo=FALSE}
 setwd("~/repos/ab_test/code")
 ```
 
@@ -90,13 +91,22 @@ Slides and code on github: (https://github.com/eleafeit/ab_test).
 
 We will walk through a set of examples that I created using R. 
 
-- If you don't know R, let me drive the R syntax so that you can focus on **where we are going**. Download the slides and follow along.
-- If you are learning R, you should also let me drive. I can answer some R syntax questions along the way, but I don't want to get stuck in the syntatical mud. The code will be there later when you want to review.
-- If you know R, download the RMarkdown files and run the code as we go along.
-- I'm adaptable. Please ask questions so I can calibrate.
+- **If you don't know R**, let me drive the R syntax so that you can focus on where we are going. Download the slides and follow along.
+- **If you are learning R**, you should also let me drive. I can answer some R syntax questions along the way, but I don't want to get stuck in the syntatical mud. The code will be there later when you want to review.
+- **If you know R well**, download the RMarkdown files and run the code as we go along.  
+
 
 <div class="centered">
-![](images/tiger.jpg){width=30%}
+<div class="red2">
+I'm adaptable. Please ask questions so I can calibrate.
+</div>
+</div>
+
+
+## Let's go!
+
+<div class="centered">
+![](images/tiger.jpg){width=70%}
 </div>
 
 

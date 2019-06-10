@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Advanced A/B Testing Workshop
 
 Elea McDonnell Feit, Drexel University
@@ -19,7 +24,7 @@ Yes! During the workshop, I will be working examples in R. If you don’t know R
 - How do “classical” and Bayesian approaches to A/B testing differ?
 
 ## Workshop Outline
-1. [Introduction]()
+1. [Introduction](code/1_intro.html)
 2. [A/B Test Basics]() (review)
     - Randomization checks
     - Analysis

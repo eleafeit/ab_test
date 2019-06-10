@@ -390,20 +390,29 @@ $n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 p (1-p)}{d^2} \ri
 ## Sample size calculator
 **Binary outcomes**
 ```{r}
-power.prop.test(p1=0.07, p2=0.07 + 0.01, sig.level=0.95, power=0.80)
+power.prop.test(p1=0.07, p2=0.07 + 0.01, sig.level=0.05, power=0.80)
 ```
 
 ## Sample size calculator
 
-![](images/evans_sample_size.png){width=80%}
+![](images/evans_sample_size.png){width=60%}
 
 
-## Sample size calculators
+## A word of caution about sample size calculators
 
-**A word of caution**: There are a lot of different ideas about sample size calculations floating around (including some of my own). These formulas differ on what assumptions they may about what you are trying to do, but it is very hard to figure out what assumptions are being made (even for experts). 
+There are a lot of different ideas about sample size calculations floating around (including some of my own). These formulas differ on what assumptions they may about what you are trying to do, but it is very hard to figure out what assumptions are being made (even for experts). 
 
 A decent sample size calculation will help you identify whether you are likely to end up with way too much or too little data. 
 
+
+## Tips for getting started with A/B testing
+- Keep it simple
+- Be prepared to find no effect
+- Choose "strong" treatments
+- Run many tests in fast succession 
+- You are searching for a few "golden tickets"
+
+![](images/golden_ticket.png){width=30%}
 
 ## Things you just learned (or reviewed)
 - Three types of variables in test data
@@ -417,4 +426,4 @@ A decent sample size calculation will help you identify whether you are likely t
     - Dot plots or violin plots
     - `t.test()` for significance
 - Eight key questions that define a test plan
-- Sample size planning calculations
+- Sample size calculations

@@ -491,7 +491,7 @@ for (r in 1:1000) {
 }
 mean(sig)   # bigger than the nominal significance of 5%</pre>
 
-<pre >## [1] 0.339</pre>
+<pre >## [1] 0.329</pre>
 
 </article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning-1" class="bigger">
 
@@ -556,15 +556,15 @@ mean(sig)   # bigger than the nominal significance of 5%</pre>
 
 <p><strong>Binary outcomes</strong></p>
 
-<pre class = 'prettyprint lang-r'>power.prop.test(p1=0.07, p2=0.07 + 0.01, sig.level=0.95, power=0.80)</pre>
+<pre class = 'prettyprint lang-r'>power.prop.test(p1=0.07, p2=0.07 + 0.01, sig.level=0.05, power=0.80)</pre>
 
 <pre >## 
 ##      Two-sample comparison of proportions power calculation 
 ## 
-##               n = 1134.33
+##               n = 10889.14
 ##              p1 = 0.07
 ##              p2 = 0.08
-##       sig.level = 0.95
+##       sig.level = 0.05
 ##           power = 0.8
 ##     alternative = two.sided
 ## 
@@ -572,13 +572,25 @@ mean(sig)   # bigger than the nominal significance of 5%</pre>
 
 </article></slide><slide class=""><hgroup><h2>Sample size calculator</h2></hgroup><article  id="sample-size-calculator-2">
 
-<img width="80%" src='images/evans_sample_size.png' title='fig:'/>
+<img width="60%" src='images/evans_sample_size.png' title='fig:'/>
 
-</article></slide><slide class=""><hgroup><h2>Sample size calculators</h2></hgroup><article  id="sample-size-calculators">
+</article></slide><slide class=""><hgroup><h2>A word of caution about sample size calculators</h2></hgroup><article  id="a-word-of-caution-about-sample-size-calculators">
 
-<p><strong>A word of caution</strong>: There are a lot of different ideas about sample size calculations floating around (including some of my own). These formulas differ on what assumptions they may about what you are trying to do, but it is very hard to figure out what assumptions are being made (even for experts).</p>
+<p>There are a lot of different ideas about sample size calculations floating around (including some of my own). These formulas differ on what assumptions they may about what you are trying to do, but it is very hard to figure out what assumptions are being made (even for experts).</p>
 
 <p>A decent sample size calculation will help you identify whether you are likely to end up with way too much or too little data.</p>
+
+</article></slide><slide class=""><hgroup><h2>Tips for getting started with A/B testing</h2></hgroup><article  id="tips-for-getting-started-with-ab-testing">
+
+<ul>
+<li>Keep it simple</li>
+<li>Be prepared to find no effect</li>
+<li>Choose &quot;strong&quot; treatments</li>
+<li>Run many tests in fast succession</li>
+<li>You are searching for a few &quot;golden tickets&quot;</li>
+</ul>
+
+<img width="30%" src='images/golden_ticket.png' title='fig:'/>
 
 </article></slide><slide class=""><hgroup><h2>Things you just learned (or reviewed)</h2></hgroup><article  id="things-you-just-learned-or-reviewed">
 
@@ -603,7 +615,7 @@ mean(sig)   # bigger than the nominal significance of 5%</pre>
 <li><code>t.test()</code> for significance</li>
 </ul></li>
 <li>Eight key questions that define a test plan</li>
-<li>Sample size planning calculations</li>
+<li>Sample size calculations</li>
 </ul></article></slide>
 
 

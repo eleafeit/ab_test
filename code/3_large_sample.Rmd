@@ -4,6 +4,7 @@ subtitle: "When your sample size is large"
 author: "Elea McDonnell Feit"
 date: "6/10/2019"
 output: ioslides_presentation
+widescreen: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +12,7 @@ output: ioslides_presentation
 
 # Slicing and dicing
 
-## 
+## {.flexbox .vcenter}
 
 <div class="centered">
 "When customers are randomly assigned to treatment and control groups, and there are many customers in each group, then you may effectively have multiple experiments to analyze."
@@ -19,7 +20,48 @@ output: ioslides_presentation
 - [Anderson and Simester (2011) A step-by-step guide to smart business experiments, *HBR*]() 
 
 
-# Slicing and dicing
+## Wine retailer experiment
+
+![](images/wine_store.png){width=90%}
+
+## Wine retailer experiment
+
+**Test setting**: email to retailer customers
+
+**Unit**: customer (email address)
+
+**Treatments**: email version A, email version B, holdout
+
+**Reponse**: open, click and 1-month purchase ($)
+
+**Selection**: all active customers
+
+**Assignment**: randomly assigned (1/3 each)
+
+## Baseline variables
+- days since last purchase
+- website visits
+- total past purchases ($)
+```{r}
+d <- read.csv("test_data.csv")
+summary(d[,c("last_purch", "visits", "past_purch")]) 
+```
+
+
+## Experiments within experiments
+We can divide customers between those who 
+```{r}
+hist(d$last_purch)
+summary(d$last_purch < 60)
+```
+
+
+## Slicing and dicing
+
+Consider the customers who have made a purchase previously. 
+
+```{r}
+```
 
 We can think of the experiment as a series of smaller experiments "layered" together. 
 For example, 
