@@ -1,0 +1,36 @@
+---
+title: "Advanced A/B Testing"
+subtitle: "When your sample size is small"
+author: "Elea McDonnell Feit"
+date: "6/10/2019"
+output: ioslides_presentation
+widescreen: yes
+---
+
+## When are sample sizes small? 
+In the age of digital marketing, you'd think we would always have big samples. Not true!
+
+Small sample tests:  
+- Website test on a low-traffic page  
+- Tests on B2B customers  
+- Tests where the store or geography is the unit of analysis  
+- When the treatment is expensive or risky  
+
+## {.flexbox .vcenter}
+When you know you are facing a small sample, it is important to **plan ahead**. 
+
+# Matching
+
+
+## Paired comparsion signficance test
+
+# Blocking
+
+## 
+If there is a variable that you can control...
+
+## Double blocking: Latin squares
+
+
+
+# Stratification  

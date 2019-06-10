@@ -11,6 +11,7 @@ widescreen: yes
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(grf)
 ```
 
 # Slicing and dicing
@@ -58,6 +59,8 @@ Within that subset, customers were randomly assigned to recieve email A, email B
 
 So, we can analyze the data for a subgroup as it's own test test by slicing down and then re-analyzing.
 
+However, we will only have enough sample in the subgroup, if our test is big enough.
+
 
 ## Slicing and dicing: recent buyers versus aged customers
 ```{r}
@@ -86,40 +89,44 @@ d %>% filter(email==TRUE) %>%
 t.test(purch ~ email, data=d[d$last_purch < 60,])
 ```
 
-## Significance test: non-recent buyers
+## Significance test: aged customers
 ```{r}
 t.test(purch ~ email, data=d[d$last_purch > 60,])
 ```
 
 
-## Significance test: recent buyers
-```{r}
-slice <- d[d$last_purch < 60 & d$group != "ctrl", ]
-t.test(open ~ group, data=slice)
-```
-
-
-## Every A/B test is a stack of A/B tests 
+## Every A/B test can be sliced 
+For example, we can look at the effect of the treatment separately for the green apples and the red apples. 
 <div class="centered">
-![](images/stacked_tomatos.jpg){width=80%}
+![](images/apples.jpg){width=30%} 
+![](images/apples.jpg){width=30%}
 </div>
 
-## Baseline varaibles
-Anyone who keeps historic data on customers or visitors has lots of baseline variables available: 
-- days since last purchase
-- website visits
-- total past purchases ($)
-- total past purchases by category ($)
+
+## We slice based on baseline variables
+
+Anyone who keeps historic data on customers or visitors has lots of baseline variables available for slicing and dicing:   
+
+- website visits (to particular parts of the site)
+- sign-ups
+- geographic location
+- source
+- past purchase (by category)
+- recency
+- frequency
+
 
 ## Exercise
-Re-analyze the opens, clicks and purchases for people who have bought syarh in the past. 
+Re-analyze the opens, clicks and purchases for people who have bought syrah in the past. 
 ```{r}
 summary(d$syrah > 0)
 ```
 
 
 ## Repeated significance testing
-Don't forget that 1 in 20 significance tests at 95% confidence will be significant, when there is no effect. You will get false positives, especially when slicing and dicing. 
+Slicing and dicing means you will run many significance tests. 
+
+You may remember from intro stats that 1 in 20 significance tests at 95% confidence will be significant, when there is no effect. You will get false positives, especially when slicing and dicing. 
 
 When you think you've found a golden ticket, re-test before betting the company.
 
@@ -135,11 +142,12 @@ Slicing and dicing will reveal two things about subgroups of customers.
 
 
 ## Heterogeneous treatment effects
-"Experiments are used because they provide credible estimates of the effect of an intervention for a sample population. But underlying this average effect for a sample may be **substantial variation in how particular respondents respond to treatments**: there may be **heterogeneous treatment effects**."
+"Experiments are used because they provide credible estimates of the effect of an intervention for a sample population. But underlying this average effect for a sample may be **substantial variation in how particular respondents respond to treatments**: there may be **heterogeneous treatment effects**."  
+
 -- Athey and Imbens, 2015
 
 ## Heterogeneous treatment effects and targeting
-Marketers should be interested in heterogeneous treatment effects when there is opportunity for targeting. 
+Marketers should be interested in heterogeneous treatment effects when there is opportunity to apply different treatments to each subgroup (ie targeting).
 
 email -> high potential for targeting  
 
@@ -148,11 +156,197 @@ website -> less potential for targeting
 
 # Uplift modeling
 
-## Analyzing experiments with regression
-So far, we have used hypothesis tests (`t.test()` and `prop.test()`) to assess the statistical significance of test differences.  
+## Analyzing experiments with regression 
+We use a **regression model** to define a relationship between the response ($y$) and the treatment ($x$). 
+
+$y = a + b \times x + \varepsilon$
+
+The model literally says that we get the average response by multiple the treatment indicator ($x$) by $b$ and adding that to $a$. When we fit a model, we use data to estimate $a$ and $b$. 
+
+In R, we can shorthand the model equation with an R formula: 
+
+`purch ~ email`
+
+
+## Analyzing an experiment with regression {.smaller}
+```{r}
+m1 <- lm(purch ~ email, data=d)
+summary(m1)
+```
+
+
+## Regression versus significance test {.smaller}
+Regression model
+```{r}
+summary(m1)$coef
+```
+Significance test
+```{r}
+t.test(purch ~ email, data=d, var.equal=TRUE)
+```
+
+
+## Regression versus significance tests 
+If you like regression, you can use regression to analyze all your tests. 
+
+If you don't like regression, you should try it because it gives you the ability to pull in baseline variables. This is sometimes called "regression correction."
+
+
+## Model with baseline variables {.smaller}
+```{r}
+m2 <- lm(purch ~ email + (last_purch < 60), data=d)
+summary(m2)$coef
+```
+Aged customers in the control group purchased on average \$6.03 in the 30-days after the email was sent. Recent customers in the control group purchased an additional \$13.04. The average effect of the email was \$1.44. 
+
+Adding covariates increases the likelihood of finiding significant effects. 
 
 ## Incorporating heterogeneous treatment effects
+To incorporate heterogeneous treatment effects, we need an **interaction** between the treatment effect ($x$) and a baseline variable ($z$). 
+
+When we interact to terms, we are defining a model that multiplies the two terms: 
+
+$purch = a + b x + c  z + d (x  z) + \varepsilon$
+
+The R formula for this model is: 
+
+`purch ~ email + (last_purch < 60)  + email:(last_purch < 60)`  
+or 
+`purch ~ email*(last_purch < 60)`  
+
+## Incorporating heterogeneous treatment effects {.smaller}
+```{r}
+m3 <- lm(purch ~ email + (last_purch < 60) + email:(last_purch < 60), data=d)
+summary(m3)$coef
+```
+The email effect is \$0.88 for aged customers plus an additional \$1.17 for older customers (total of \$2.05). 
+
+
+## Uplift model for purchase amount (finally!) {.smaller}
+An uplift model is a regression model that incorporates many baseline variables. 
+```{r}
+m4 <- lm(purch ~ email*(last_purch < 60) + email*(past_purch > 50) + email*(visits > 3) +
+                 email*(chard > 0) + email*(sav_blanc>0) + email*(syrah>0) + email*(cab>0), 
+         data=d)
+summary(m4)$coef
+```
+
+
+## Scoring customers with an uplift model
+If you have someone who wasn't in the test, but you know their baseline variables, you can use an uplift model to predict likely treatment effect. 
+```{r}
+new_cust <- data.frame(chard=rep(38.12, 2), sav_blanc=rep(0, 2), 
+                       syrah=rep(0, 2), cab=rep(0, 2),  
+                       past_purch=rep(38.12,2), last_purch=rep(19,2), 
+                       visits=rep(3,2))
+(pred <- predict(m4, cbind(email=c(TRUE, FALSE), new_cust)))
+(lift <- pred[1] - pred[2])
+```
+This new customer is predicted to buy \$18.37 they get an email or \$17.10 without, for a uplift of \$1.27. 
+
+## Scoring for another (better) customer
+```{r}
+new_cust <- data.frame(chard=rep(27.50, 2), sav_blanc=rep(0, 2), 
+                       syrah=rep(100.38, 2), cab=rep(0, 2),  
+                       past_purch=rep(127.88,2), last_purch=rep(19,2), 
+                       visits=rep(40,2))
+(pred <- predict(m4, cbind(email=c(TRUE, FALSE), new_cust)))
+(lift <- pred[1] - pred[2])
+```
+
+
+## Why uplift modeling? 
+If treatments are costly (eg catalogs, discounts), then we should target customers that we predict will have a positive effect that exceeds costs.
+
+
+## Uplift model for clicks
+We can also build an uplift model for click probability, but we should use a logistic regression. 
+```{r}
+m5 <- glm(click ~ group*(last_purch < 60) + group*(past_purch > 50) + group*(visits > 3) +
+                  group*(chard > 0) + group*(sav_blanc>0) + group*(syrah>0) + group*(cab>0),
+          family = binomial,
+         data=d[d$group != "ctrl",])
+summary(m5)$coef
+```
+While email B has lower overall click rate, customers who have purchased syrah in the past are more likely to click if they get email B, which promoted syrah. 
+
 
 # Causal forests
 
- 
+## Causal forests
+Causal forests are an alternative to regression for identifying heterogeneous treatment effects and scoring customers based on predicted treatment effect uplift. 
+
+Advantages  
+- Works well with a large number of baseline variables  
+- Doesn't require the analyst to define cut-offs for continuous baseline variables  
+- Will fit non-linear relationships between baseline variables and uplift  
+
+
+## Preliminaries I: CART
+Where regression models predict customer outcomes with a linear equation, cart trees predict customer outcomes using a tree structure. CARTs are estimated by finding the tree structure that seems to classify people correctly most of the time.
+![](images/cart.png){width=45%}
+
+## Preliminaries II: Random forests
+Random forests are collections of different CARTs fit from subsets of the data that each classify customers slightly differently. Unlike a regression, a random forest can pick up non-linear relationships. 
+![](images/random_forest.jpg){width=75%}
+
+## Causal forests
+Causal forests are random forests designed to categorize customers according to their **treatment effect** in an experiment. The customers in each leaf are assumed to have homogeneous treatment effects, with heterogeneous treatment effects between leaves. 
+
+## Causal forest for wine retailer experiment
+```{r}
+cf_size <- 50000
+treat <- d$email[1:cf_size]
+response <- d$purch[1:cf_size]
+baseline <- d[1:cf_size, c("last_purch", "past_purch", "visits", "chard", "sav_blanc", "syrah", "cab")]
+cf <- causal_forest(baseline, response, treat)
+print(cf)
+```
+
+
+## Overall average treatment effect
+```{r}
+average_treatment_effect(cf, method="AIPW")
+```
+
+
+## Predicted uplift 
+Just like any uplift model, we can use the model to predict the email effect for new customers. 
+```{r}
+new_cust <- data.frame(chard=38.12, sav_blanc=0, syrah=0, cab=0,  
+                       past_purch=38.12, last_purch=19, visits=3)
+predict(cf, new_cust, estimate.variance = TRUE)
+```
+
+## Predicted uplift for all customers in test
+```{r}
+hist(predict(cf)$predictions, 
+     main="Histogram of Purchase Lift", 
+     xlab="Purchase Lift for Email", ylab="Customers")
+```
+
+
+## Uplift versus past purchase amount
+```{r}
+trans_gray <- rgb(0.1, 0.1, 0.1, alpha=0.1)
+plot(d$past_purch[1:cf_size], predict(cf)$predictions, 
+     cex=0.5, col=trans_gray,
+     xlab="Past Purchase Amount ($)", ylab="Predicted Treatment Effect ($)")
+```
+
+
+## Uplift versus days since last purchase
+```{r}
+trans_gray <- rgb(0.1, 0.1, 0.1, alpha=0.1)
+plot(d$last_purch[1:cf_size], predict(cf)$predictions, 
+     cex=0.5, col=trans_gray,
+     xlab="Days Since Last Purchase", ylab="Predicted Treatment Effect ($)")
+```
+
+
+## Things you just learned 
+- Large sample -> look for heterogeneous treatment effects
+- Three ways to find heterogeneous treatment effects
+    - Slicing and dicing
+    - Uplift modeling
+    - Causal forests
