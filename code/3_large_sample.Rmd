@@ -1,0 +1,32 @@
+---
+title: "Advanced A/B Testing"
+subtitle: "When your sample size is large"
+author: "Elea McDonnell Feit"
+date: "6/10/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+```
+
+# Slicing and dicing
+
+## 
+
+<div class="centered">
+"When customers are randomly assigned to treatment and control groups, and there are many customers in each group, then you may effectively have multiple experiments to analyze."
+</div>
+- [Anderson and Simester (2011) A step-by-step guide to smart business experiments, *HBR*]() 
+
+
+# Slicing and dicing
+
+We can think of the experiment as a series of smaller experiments "layered" together. 
+For example, 
+
+# Uplift modeling
+
+## Analyzing experiments with regression
+
+## Incorporating hetero
+# 

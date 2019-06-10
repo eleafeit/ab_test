@@ -478,12 +478,27 @@ t.test(purch ~ email, data=d)</pre>
 
 <p><strong>Sample size</strong>: ???</p>
 
-</article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning" class="bigger">
+</article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning">
+
+<p>Significance tests will erroneously detect effects that aren&#39;t there, if you repeatedly test for significance as the data comes in and stop when you get a significant difference.</p>
+
+<pre class = 'prettyprint lang-r'>sig &lt;- rep(0, 1000)
+for (r in 1:1000) {
+  A &lt;- rnorm(101); B &lt;- rnorm(101)
+  pval &lt;- rep(NA, 100)
+  for (n in 1:100) pval[n] &lt;- t.test(A[1:(n+1)], B[1:(n+1)])$p.value  # repeated testing
+  if (min(pval) &lt; 0.05) sig[r] &lt;- 1  # any significance along the way
+}
+mean(sig)   # bigger than the nominal significance of 5%</pre>
+
+<pre >## [1] 0.339</pre>
+
+</article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning-1" class="bigger">
+
+<p>The traditional recommendation is to set the sample size <strong>in advance</strong> and not test for significance until the data comes in.</p>
 
 <div class="centered">
 <p>\(n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 s^2}{d^2} \right)\)</p>
-
-<p><br/></p>
 
 <div class="red">
 <p>WTF? Seriously?</p></div></div>
@@ -525,7 +540,7 @@ t.test(purch ~ email, data=d)</pre>
 
 <p>We need 3272 in each group.</p>
 
-</article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning-1">
+</article></slide><slide class=""><hgroup><h2>Sample size planning</h2></hgroup><article  id="sample-size-planning-2">
 
 <p>There is a slightly different formula for</p>
 
