@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Advanced A/B Testing Workshop
 
@@ -25,11 +25,11 @@ Yes! During the workshop, I will be working examples in R. If you don’t know R
 
 ## Workshop Outline
 1. [Introduction](code/1_intro.html)
-2. [A/B Test Basics]() (review)
+2. [A/B Test Basics](code/2_basics.html) (review)
     - Randomization checks
     - Analysis
     - Sample size planning
-3. [When your sample size is big]()
+3. [When your sample size is big](code/3_large_sample.html)
     - Slice and dice 
     - Uplift modeling
     - Causal forests

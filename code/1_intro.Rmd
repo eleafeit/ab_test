@@ -84,7 +84,9 @@ Any behavioral differences between these groups is **caused by the treatments** 
     - Wharton Customer Analytics
 
 ## Materials
-Slides and code on github: (https://github.com/eleafeit/ab_test). 
+Slides and code at https://eleafeit.github.io/ab_test/.  
+
+Public github repository with R Markdown source is at https://github.com/eleafeit/ab_test/. 
 
 
 ## How to use the materials
