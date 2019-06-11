@@ -26,7 +26,7 @@ There is nothing better than a head-to-head A/B test to drive marketing decision
     - Pre-test matching
     - Post-stratification
 5. Making decisions
-    - [Test & roll]()
+    - [Test & roll](https://docs.google.com/presentation/d/1KR7SBMx3w8Jkkf5CCvmh52yBe_gZSQx6kwZmPFAfyr8/edit?usp=sharing)
     - Multi-armed bandits
 6. When you can't randomize (time permitting)
     - Propensity matching
