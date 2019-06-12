@@ -23,12 +23,12 @@ There is nothing better than a head-to-head A/B test to drive marketing decision
     - Uplift modeling
     - Causal forests
 4. [When your sample size is small](https://eleafeit.github.io/ab_test/code/4_small_sample.html)
-    - Pre-test matching
     - Post-stratification
+    - Pre-test matching
 5. [Maximizing profits](https://eleafeit.github.io/ab_test/code/5_profit_max.html)
     - Test & roll
     - Multi-armed bandits
-6. When you can't randomize (forthcoming)
+6. When you can't randomize (not quite done!)
     - Propensity matching
     - Causal forests
 
