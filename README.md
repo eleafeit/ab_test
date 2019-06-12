@@ -25,10 +25,10 @@ There is nothing better than a head-to-head A/B test to drive marketing decision
 4. [When your sample size is small](https://eleafeit.github.io/ab_test/code/4_small_sample.html)
     - Pre-test matching
     - Post-stratification
-5. Making decisions
-    - [Test & roll](https://docs.google.com/presentation/d/1KR7SBMx3w8Jkkf5CCvmh52yBe_gZSQx6kwZmPFAfyr8/edit?usp=sharing)
+5. [Maximizing profits](https://eleafeit.github.io/ab_test/code/5_profit_max.html)
+    - Test & roll
     - Multi-armed bandits
-6. When you can't randomize (time permitting)
+6. When you can't randomize (forthcoming)
     - Propensity matching
     - Causal forests
 

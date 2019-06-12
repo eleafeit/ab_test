@@ -8,6 +8,7 @@ widescreen: yes
 ---
 
 ```{r setup, include=FALSE}
+setwd("~/repos/ab_test/code")
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -36,7 +37,7 @@ library(grf)
 
 **Treatments**: email version A, email version B, holdout
 
-**Reponse**: open, click and 1-month purchase ($)
+**Reponse**: open, click and 1-month purchase (\$)
 
 **Selection**: all active customers
 
@@ -206,7 +207,7 @@ To incorporate heterogeneous treatment effects, we need an **interaction** betwe
 
 When we interact to terms, we are defining a model that multiplies the two terms: 
 
-$purch = a + b x + c  z + d (x  z) + \varepsilon$
+$y = a + b x + c  z + d (x  z) + \varepsilon$
 
 The R formula for this model is: 
 
@@ -260,7 +261,7 @@ If treatments are costly (eg catalogs, discounts), then we should target custome
 
 
 ## Uplift model for clicks
-We can also build an uplift model for click probability, but we should use a logistic regression. 
+We can also build an uplift model for click probability, but we should use a logistic regression for binary outcomes. 
 ```{r}
 m5 <- glm(click ~ group*(last_purch < 60) + group*(past_purch > 50) + group*(visits > 3) +
                   group*(chard > 0) + group*(sav_blanc>0) + group*(syrah>0) + group*(cab>0),
@@ -295,7 +296,7 @@ Causal forests are random forests designed to categorize customers according to 
 
 ## Causal forest for wine retailer experiment
 ```{r}
-cf_size <- 50000
+cf_size <- nrow(d)
 treat <- d$email[1:cf_size]
 response <- d$purch[1:cf_size]
 baseline <- d[1:cf_size, c("last_purch", "past_purch", "visits", "chard", "sav_blanc", "syrah", "cab")]
@@ -345,7 +346,7 @@ plot(d$last_purch[1:cf_size], predict(cf)$predictions,
 
 
 ## Things you just learned 
-- Large sample -> look for heterogeneous treatment effects
+- Large sample -> look for heterogeneous treatment effects using baseline variables
 - Three ways to find heterogeneous treatment effects
     - Slicing and dicing
     - Uplift modeling
