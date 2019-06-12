@@ -64,6 +64,7 @@ Everything measured after the randomization is an outcome
 summary(d$group)
 ```
 
+
 ## Responses
 - open test email (load images)
 - click test email to visit website
@@ -72,6 +73,7 @@ summary(d$group)
 summary(d[,c("open", "click", "purch")])
 ```
 
+
 ## Baseline variables
 - days since last purchase
 - website visits
@@ -79,6 +81,7 @@ summary(d[,c("open", "click", "purch")])
 ```{r}
 summary(d[,c("last_purch", "visits", "past_purch")]) 
 ```
+
 
 ## More baseline variables
 - total past purchases by category ($)
@@ -130,6 +133,7 @@ aggregate(cbind(last_purch, visits, past_purch, chard, sav_blanc, syrah, cab) ~ 
 #d %>% group_by(group) %>% summarize(mean(last_purch), mean(visits), mean(past_purch), #mean(past_purch > 0))
 ```
 
+
 ## Randomization checks
 
 **Purchase incidence by group**
@@ -139,6 +143,7 @@ aggregate(past_purch > 0 ~ group, data=d, mean)
 ```{r, echo=FALSE}
 # d %>% group_by(group) %>% summarize(mean(past_purch > 0))
 ```
+
 
 ## Randomization checks
 The distributions of baseline variables should also be the same between groups.
@@ -152,6 +157,7 @@ ggplot(aes(x=past_purch, fill=group)) +
   labs(title="Distribution of past purchases by group")
 ```
 
+
 ## Randomization checks
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -162,6 +168,7 @@ ggplot(aes(x=visits, fill=group)) +
   xlab("Days Since Last Purchase") + ylab("Customers") + 
   labs(title="Distribution of website visits by group")
 ```
+
 
 ## Exercise
 
@@ -191,6 +198,7 @@ prop.test(xtabs(~ group + open, data=d_treat)[,2:1])
 mosaicplot(xtabs(~ group + open, data=d), 
            main="Wine Retailer Test: Email Opens")
 ```
+
 
 ## Does email A have a higher click rate than email B? 
 ```{r}
