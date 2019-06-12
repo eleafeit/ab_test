@@ -125,7 +125,7 @@ xtabs(~ group + (last_purch > 60), data=d_big)
 ```
 
 
-## Stratification and blocking
+## Stratification (aka blocking)
 
 Balancing the sample in each subgroup will increase precision. This is called (not post-) **stratification** in biostats and **blocking** in engineering. This becomes more important as: 
 
@@ -137,7 +137,22 @@ Balancing the sample in each subgroup will increase precision. This is called (n
 
 
 # Matching
-Sometimes you have a large number of baseline variables that are plausibly related to the response variable. For instance, consider a test where we on 
+
+## Matching
+For instance, consider a test where the treatment is a ne store display, which will will install in some stores. We usually know lots of things about stores before the experiment. 
+
+**Matching** is when we use the baseline variables that we have on the stores to identify pairs of similar stores. 
+
+One of the best ways to match stores is on past sales. 
+
+
+## Matching in other domains
+- Within-subjects designs (but introduces time confounding)
+- Twin studies
+
+
+## Wait, doesn't this break randomization? 
+No, we create pairs of matched stores and then randomize within each pair. 
 
 ## Paired comparsion signficance test
 When you've matched units in advance, you should analyze the test as a paired comparison test.  
@@ -146,8 +161,9 @@ When you've matched units in advance, you should analyze the test as a paired co
 
 
 ## {.flexbox .vcenter}
+Block what you can, randomize what you can not. 
+-- atttibuted to George Box
 
--- Box (XXXX)
 
 ## Things you just learned 
 - Small sample -> use baseline variables to mop up noise

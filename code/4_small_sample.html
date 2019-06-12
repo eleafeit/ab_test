@@ -293,7 +293,7 @@ contrasts(d$strata)</pre>
 ##   email_A   458  517
 ##   email_B   448  446</pre>
 
-</article></slide><slide class=""><hgroup><h2>Stratification and blocking</h2></hgroup><article  id="stratification-and-blocking-1">
+</article></slide><slide class=""><hgroup><h2>Stratification (aka blocking)</h2></hgroup><article  id="stratification-aka-blocking">
 
 <p>Balancing the sample in each subgroup will increase precision. This is called (not post-) <strong>stratification</strong> in biostats and <strong>blocking</strong> in engineering. This becomes more important as:</p>
 
@@ -310,7 +310,24 @@ contrasts(d$strata)</pre>
 
 </article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Matching</h2></hgroup><article  id="matching">
 
-<p>Sometimes you have a large number of baseline variables that are plausibly related to the response variable. For instance, consider a test where we on</p>
+</article></slide><slide class=""><hgroup><h2>Matching</h2></hgroup><article  id="matching-1">
+
+<p>For instance, consider a test where the treatment is a ne store display, which will will install in some stores. We usually know lots of things about stores before the experiment.</p>
+
+<p><strong>Matching</strong> is when we use the baseline variables that we have on the stores to identify pairs of similar stores.</p>
+
+<p>One of the best ways to match stores is on past sales.</p>
+
+</article></slide><slide class=""><hgroup><h2>Matching in other domains</h2></hgroup><article  id="matching-in-other-domains">
+
+<ul>
+<li>Within-subjects designs (but introduces time confounding)</li>
+<li>Twin studies</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Wait, doesn&#39;t this break randomization?</h2></hgroup><article  id="wait-doesnt-this-break-randomization">
+
+<p>No, we create pairs of matched stores and then randomize within each pair.</p>
 
 </article></slide><slide class=""><hgroup><h2>Paired comparsion signficance test</h2></hgroup><article  id="paired-comparsion-signficance-test">
 
@@ -320,7 +337,7 @@ contrasts(d$strata)</pre>
 
 </article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section-1" class="flexbox vcenter">
 
-<p>&#8211; Box (XXXX)</p>
+<p>Block what you can, randomize what you can not. &#8211; atttibuted to George Box</p>
 
 </article></slide><slide class=""><hgroup><h2>Things you just learned</h2></hgroup><article  id="things-you-just-learned">
 
