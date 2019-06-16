@@ -1,6 +1,6 @@
 ---
 title: "Advanced A/B Testing"
-subtitle: "When your sample size is large"
+subtitle: "Large Sample A/B Tests"
 author: "Elea McDonnell Feit"
 date: "6/10/2019"
 output: ioslides_presentation
@@ -22,7 +22,7 @@ library(grf)
 <div class="centered">
 "When customers are randomly assigned to treatment and control groups, and there are many customers in each group, then you may effectively have multiple experiments to analyze."
 </div>
-- [Anderson and Simester (2011) A step-by-step guide to smart business experiments, *HBR*]() 
+- [Anderson and Simester (2011) A step-by-step guide to smart business experiments, *HBR*](https://eleafeit.github.io/ab_test/Anderson_Simester_2011.pdf) 
 
 
 ## Wine retailer experiment

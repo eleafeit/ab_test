@@ -36,16 +36,17 @@ d$visits[d$visits == 0 & d$past_purch > 0] <- 1 # at least one visit for purchas
 
 
 # RANDOMIZED treatment assignment -----
-# simple random assignment (N known in advance)
+# bernoulli assignment (N known in advance)
 # d$group <- sample(c("email_A", "email_B", "ctrl"), size=N, 
 #                      replace=TRUE, prob=rep(1/3, 3))
-# complete random assignment (N not known in advance)
+# completely random assignment (N known in advance)
 d$group <- NA
 rand <- sample(1:N, size=N)
 d$group[rand][1:round(N/3)] <- "email_A"
 d$group[rand][1:round(N/3) + round(N/3)] <- "email_B"
 d$group[is.na(d$group)] <- "ctrl"
 d$group <- factor(d$group, c("email_A", "email_B", "ctrl"))
+d$email <- d$group != "ctrl"
 
 # test outcomes -----
 p <-  1/(1+exp(-1 - d$past_purch/100 + d$last_purch/60 - 0.5*(d$group=="email_A")))
@@ -54,8 +55,9 @@ d$open[d$group == "ctrl"] <- 0
 p <- 1/(1+exp(2 - 0.5*(d$group=="email_A") - 0.5*(d$syrah >0)*(d$group=="email_B")))
 d$click <- (runif(N) < p) * 1
 d$click[!(d$open==1)] <- 0
-p <-  1/(1+exp(1 - d$past_purch/300 + d$last_purch/60 - 1*(d$click==1)))
+p <-  1/(1+exp(1 - d$past_purch/300 + d$last_purch/60 + (d$group != "ctrl")*d$past_purch/300- 1*(d$click==1)))
 d$purch <- round(exp(rnorm(N, mean=3.6, sd=1)) * (runif(N) < p), 2)
+d$purch[d$purch<12.32] <- 0
 
 # inspect and write out -----
 summary(d)
@@ -69,5 +71,5 @@ mosaicplot(table(d$group, d$purch>0))
 prop.test(table(d$group, d$purch==0))
 plot(purch ~ group, data=d)
 
-d <- d[,c(1:2, 10:13, 3:9)]
+d <- d[,c(1:2, 10:14, 3:9)]
 write.csv(d, file="~/repos/ab_test/code/test_data.csv", row.names = FALSE)

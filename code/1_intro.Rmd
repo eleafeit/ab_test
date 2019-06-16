@@ -50,7 +50,6 @@ Any behavioral differences between these groups is **caused by the treatments** 
 
 ## Workshop plan {.smaller}
 
-<div class="columns-2">
 - Test Analysis Basics 
     - Randomization checks
     - Analysis
@@ -62,13 +61,10 @@ Any behavioral differences between these groups is **caused by the treatments** 
 - When your sample size is small
     - Pre-test matching
     - Post-stratification
-- Making decisions
+- Maximizing profits
     - Test & roll
     - Multi-armed bandits
 - When you can't randomize (time permitting)
-    - Propensity matching
-    - Causal forests
-</div>
 
 ## About Elea McDonnell Feit
 
@@ -92,7 +88,7 @@ R Markdown source is at https://github.com/eleafeit/ab_test/.
 
 ## How to use the materials
 
-We will walk through a set of examples that I created using R. 
+We will walk through a set of examples that I created using the R (a statistical programming language). 
 
 - **If you don't know R**, let me drive the R syntax so that you can focus on where we are going. Download the slides and follow along.
 - **If you are learning R**, you should also let me drive. I can answer some R syntax questions along the way, but I don't want to get stuck in the syntatical mud. The code will be there later when you want to review.
