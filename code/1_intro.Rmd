@@ -50,7 +50,8 @@ Any behavioral differences between these groups is **caused by the treatments** 
 
 ## Workshop plan {.smaller}
 
-- Test Analysis Basics (review?)
+<div class="columns-2">
+- Test Analysis Basics 
     - Randomization checks
     - Analysis
     - Sample size planning
@@ -67,7 +68,7 @@ Any behavioral differences between these groups is **caused by the treatments** 
 - When you can't randomize (time permitting)
     - Propensity matching
     - Causal forests
-
+</div>
 
 ## About Elea McDonnell Feit
 
@@ -86,7 +87,7 @@ Any behavioral differences between these groups is **caused by the treatments** 
 ## Materials
 Slides and code at https://eleafeit.github.io/ab_test/.  
 
-Public github repository with R Markdown source is at https://github.com/eleafeit/ab_test/. 
+R Markdown source is at https://github.com/eleafeit/ab_test/. 
 
 
 ## How to use the materials
