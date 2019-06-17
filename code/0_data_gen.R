@@ -28,7 +28,7 @@ d$syrah <- t[,3]
 d$cab <- t[,4]
 d$past_purch <- d$chard + d$sav_blanc + d$syrah + d$cab
 # last purchase date
-d$last_purch = round(rexp(N, rate = 1/90))
+d$days_since = round(rexp(N, rate = 1/90))
 # website visits
 d$visits = rpois(N, 5 + d$past_purch/200)
 d$visits[d$visits < 0] <- 0
@@ -49,13 +49,13 @@ d$group <- factor(d$group, c("email_A", "email_B", "ctrl"))
 d$email <- d$group != "ctrl"
 
 # test outcomes -----
-p <-  1/(1+exp(-1 - d$past_purch/100 + d$last_purch/60 - 0.5*(d$group=="email_A")))
+p <-  1/(1+exp(-1 - d$past_purch/100 + d$days_since/60 - 0.5*(d$group=="email_A")))
 d$open <- (runif(N) < p) * 1
 d$open[d$group == "ctrl"] <- 0
 p <- 1/(1+exp(2 - 0.5*(d$group=="email_A") - 0.5*(d$syrah >0)*(d$group=="email_B")))
 d$click <- (runif(N) < p) * 1
 d$click[!(d$open==1)] <- 0
-p <-  1/(1+exp(1 - d$past_purch/300 + d$last_purch/60 - (d$group != "ctrl")*d$past_purch/300 - 1*(d$click==1)))
+p <-  1/(1+exp(1 - d$past_purch/300 - (d$visits > 3)*d$email + d$days_since/60 - (d$group != "ctrl")*d$past_purch/300 - 1*(d$click==1)))
 d$purch <- round(exp(rnorm(N, mean=3.6, sd=1)) * (runif(N) < p), 2)
 d$purch[d$purch<12.32] <- 0
 

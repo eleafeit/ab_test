@@ -8,6 +8,7 @@ incremental: true
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
 setwd("~/repos/ab_test/code")
 library(ggplot2)
 library(dplyr)
@@ -79,11 +80,11 @@ summary(d[,c("open", "click", "purch")])
 
 
 ## Baseline variables (z)
-- days since last purchase
+- days since last activity
 - website visits
 - total past purchases ($)
 ```{r}
-summary(d[,c("last_purch", "visits", "past_purch")]) 
+summary(d[,c("days_since", "visits", "past_purch")]) 
 ```
 
 
@@ -134,11 +135,11 @@ Randomization checks confirm that the baseline variables are distributed similar
 **Averages of baseline variables by treatment group**
 ```{r, echo=FALSE}
 # alternative base-R version
-# aggregate(cbind(last_purch, visits, past_purch, chard, sav_blanc, syrah, cab) ~ group,
+# aggregate(cbind(days_since, visits, past_purch, chard, sav_blanc, syrah, cab) ~ group,
 #           data=d, mean)
 ```
 ```{r}
-d %>% group_by(group) %>% summarize(mean(last_purch), mean(visits), mean(past_purch))
+d %>% group_by(group) %>% summarize(mean(days_since), mean(visits), mean(past_purch))
 ```
 Group means are are similar between groups. 
 
@@ -177,7 +178,7 @@ d %>% filter(visits > 0) %>%
 ggplot(aes(x=visits, fill=group)) + 
   geom_histogram(binwidth = 1, alpha=0.2, position="identity") +
   xlim(0, 50) + 
-  xlab("Days Since Last Purchase") + ylab("Customers") + 
+  xlab("Days Since Last Activity") + ylab("Customers") + 
   labs(title="Distribution of website visits by treatment group")
 ```
 
@@ -419,7 +420,7 @@ $n_1 = n_2 \approx (z_{1-\alpha/2} + z_\beta)^2 \left( \frac{2 s^2}{d^2} \right)
 Sample size to detect at \$1 difference in average 30-day purchases:
 ```{r}
 sd(d$purch)
-power.t.test(sd=sd(d$purch), delta=1, sig.level=0.95, power=0.80)
+#power.t.test(sd=sd(d$purch), delta=1, sig.level=0.95, power=0.80)
 ```
 We need 2,387 in each group. 
 

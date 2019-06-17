@@ -2,12 +2,13 @@
 title: "Advanced A/B Testing"
 subtitle: "Small Sample A/B Tests"
 author: "Elea McDonnell Feit"
-date: "6/10/2019"
+date: "6/16/2019"
 output: ioslides_presentation
 widescreen: yes
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
 setwd("~/repos/ab_test/code")
 ```
 
@@ -15,83 +16,78 @@ setwd("~/repos/ab_test/code")
 In the age of digital marketing, you'd think we would always have big samples. Not true!
 
 Small sample tests:  
+- Tests on small sub-populations
 - Website test on a low-traffic page 
 - Tests on B2B customers  
-- Tests where the store or geography is the unit of analysis  
-- When the treatment is expensive or risky  
+- Tests where treatments are applied to store locations or geographies
+- When the treatment is expensive or risky
 
 
 ## Wine retailer example
-Suppose we want to know the effect of the email specifically for customers who have purchased more than \$1,000 in the past. 
+Let's imagine we conducted an activation test with customers who have never purchased, but have been active in the past day.
 ```{r}
 d <- read.csv("test_data.csv")
-d_big <- d[d$past_purch > 1000, ]
+d <- d[d$past_purch==0 & d$days_since < 1, ]
+nrow(d)
 aggregate(cbind(open, click, purch) ~ group, 
-          data=d_big, FUN=mean)
+          data=d, FUN=mean)
 ```
 There are big differences there, but are they statistically significant?
 
-## Do emails produce higher purchases by big spenders?
+## Do emails produce higher purchases?
 ```{r}
-d_big$email <- d_big$group != "ctrl"
-summary(lm(purch ~ email, data=d_big))
-# t.test(purch ~ email, data=d_big, var.equal=TRUE) # equivalent
+summary(lm(purch ~ email, data=d))
+# t.test(purch ~ email, data=d, var.equal=TRUE) # equivalent
 ```
-Well, they buy more, but the email effect isn't even close to significant (p=0.591).
+Well, they buy more, but the email effect isn't even close to significant.
 
-
-## Do big spenders click more on email A? 
-```{r}
-summary(glm(email ~ group, data=d_big[d_big$group != "ctrl",]))
-# prop.test(xtabs(~ group + click, data=d_big[d_big$group != "ctrl",])[2:3,2:1])
-```
 
 ## Power and precision
 We won't always get statistical significance when there are real effects, becasue of noise in the data. **Power** is the likelihood that we will detect a effect when it exists. It is related to of the **precision** of the estimates.
 
 <div class="centered">
-<div class="red2">
+<div class="red">
 small sample sizes -> low precision and low power
 </div>
 </div>
 
 
-##  {.flexbox .vcenter}
+## {.flexbox .vcenter}
 
-When you know you are facing a small sample, including baseline variable that are associated with the outcome in your analysis will increase power and precision.  
 
 <div class="centered">
-<div class="red2">
+<div class="red">
 big sample -> use baseline vars to find heterogeneous treatment effects
 small sample -> use baseline vars to mop up noise
 </div>
 </div>
 
 
-## "Regression Correction"
+## Fix #1: "Regression Correction"
 
-If one of the baseline variables predicts the outcome, then including it in a regression analysis will reduce the error term.  
+If one of the baseline variables predicts the outcome, then including it in a regression analysis will reduce the error term and increase precision.  
 
 $y = a + b x + c  z + \varepsilon$
 
 
 ## Regression correction for wine retailer
-Standard analysis
+
+### Standard analysis
 ```{r}
-d$email <- d$group != "ctrl"
-summary(lm(purch ~ email, data=d_big))$coef
+summary(lm(purch ~ email, data=d))$coef
 ```
-Regression corrected
+
+### Regression corrected
 ```{r}
-summary(lm(purch ~ email + (last_purch < 60) + (past_purch > 50), data=d_big))$coef
+summary(lm(purch ~ email + visits, data=d))$coef
 ```
-Notice the standard error on `emailTRUE` gets a tiny bit smaller.
+The standard error on emailTRUE may get a bit smaller, but if the baseline variable is unrealated to the outcome, then adding it won't help.
 
 
 # Stratification
 
 ## Post-stratification
-If your customers can be divided into strata that have more homogeneous treatment effects (based on a baseline variable(s)), then you can increase precision/power of your estimate of the overall average treatment effect by computing the estimate separately for each strata and then recombining. (See [Berman and Feit, 2018WP]() for an application in marketing).  
+If your customers can be divided into strata that have more homogeneous treatment effects (based on a baseline variable(s)), then you can increase precision/power of your estimate of the overall average treatment effect by computing the estimate separately for each strata and then recombining. (See [Berman and Feit, 2018WP](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3140631) for an application in marketing).  
 
 Post-stratification is achieved in a regression framework by effects coding the strata indicator (which is a categorical baseline variable) and interacting the treatment indicator with the the baseline indicator. 
 
@@ -99,27 +95,22 @@ Post-stratification is achieved in a regression framework by effects coding the 
 ## Post-stratification for the wine retailer
 Setup
 ```{r}
-d$strata <- (d$last_purch > 60)
+d$strata <- (d$visits < 3)
 contrasts(d$strata) <- contr.sum(2)  # effects coding
 contrasts(d$strata)
-summary(lm(purch ~ email*(last_purch > 60), data=d_big))$coef
+summary(lm(purch ~ email*strata, data=d))$coef
 ```
 
 
-"Regression Corrected"
-```{r}
-summary(lm(purch ~ email + (last_purch > 60), data=d_big))$coef
-```
-
-
-## Stratification and blocking
+## 
 The wine experiment was completely randomized. The number of subjects who got each treatment is almost perfectly equal. This maximizes the precision.
 ```{r}
-xtabs(~ group, data=d)
+big_d <- read.csv("test_data.csv")
+xtabs(~ group, data=big_d)
 ```
 But we don't have perfect balance between the treatments within group. 
 ```{r}
-xtabs(~ group + (last_purch > 60), data=d_big)
+xtabs(~ group + (visits < 3), data=big_d)
 ```
 
 
@@ -137,11 +128,15 @@ Balancing the sample in each subgroup will increase precision. This is called (n
 # Matching
 
 ## Matching
-For instance, consider a test where the treatment is a ne store display, which will will install in some stores. We usually know lots of things about stores before the experiment. 
+Consider a test where the treatment is a new store display, which we will install in some stores. We usually know lots of things about stores before the experiment. 
 
 **Matching** is when we use the baseline variables that we have on the stores to identify pairs of similar stores. 
 
 One of the best ways to match stores is on past sales. 
+
+
+## Wait, doesn't this break randomization? 
+No, we create pairs of matched stores and then randomize within each pair.
 
 
 ## Matching in other domains
@@ -151,22 +146,43 @@ One of the best ways to match stores is on past sales.
 - **Twin studies** randomly assign twins to different treatments
 
 
-## Wait, doesn't this break randomization? 
-No, we create pairs of matched stores and then randomize within each pair. 
-
 ## Paired comparsion signficance test
 When you've matched units in advance, you should analyze the test as a paired comparison test.  
 
 `t.test(..., paired=TRUE)`
 
 
-## {.flexbox .vcenter}
-Block what you can, randomize what you can not. 
--- atttibuted to George Box
-~[](images/box.jpeg){width=25%}
+## 
+
+
+Block what you can, randomize what you can not.  
+
+atttibuted to George Box, author of *Statistics for Experimenters*
+
+![](images/box.jpg){width=15%}
+
+
+## Companies that specialize in small $N$ test design
+
+### Mastercard Data & Services Test & Learn
+Formerly Applied Predictive Technologies
+
+### Google 
+See [Vaver and Koehler 2011](https://ai.google/research/pubs/pub38355)
+
+
+## Propensity matching with observational data
+Propensity matching attempts to construct an experiment from observational data using match. Matching is constrained by the treatment.  
+
+![](images/propensity_score.png){width=40%}  
+
+This is still subject to any selection bias related to unobserved variables. 
+
 
 ## Things you just learned 
-- Small sample -> use baseline variables to mop up noise
-- Three options for using baseline variables
-    - (Post-)stratification
-    - Matching (pre-test)
+- Small sample $\rightarrow$ lower power/precision $\rightarrow$ can't find significant differences
+- Options for using baseline variables to improve power
+    - Add baseline variables as controls ("regression correction")
+    - (Post-)stratification ($x \times z$ interactions)
+    - Pre-test matching
+    

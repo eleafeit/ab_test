@@ -20,7 +20,7 @@
       // Slide settings
       settings: {
                 title: 'Advanced A/B Testing',
-                        subtitle: 'When your sample size is small',
+                        subtitle: 'Small Sample A/B Tests',
                 useBuilds: true,
         usePrettify: true,
         enableSlideAreas: true,
@@ -101,7 +101,7 @@ slide:not(.current) .plotly.html-widget{
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
       <p data-config-presenter><!-- populated from slide_config.json --></p>
-            <p style="margin-top: 6px; margin-left: -2px;">6/10/2019</p>
+            <p style="margin-top: 6px; margin-left: -2px;">6/16/2019</p>
           </hgroup>
   </slide>
 
@@ -109,133 +109,101 @@ slide:not(.current) .plotly.html-widget{
 
 <p>In the age of digital marketing, you&#39;d think we would always have big samples. Not true!</p>
 
-<p>Small sample tests:<br/>- Website test on a low-traffic page<br/>- Tests on B2B customers<br/>- Tests where the store or geography is the unit of analysis<br/>- When the treatment is expensive or risky</p>
+<p>Small sample tests:<br/>- Tests on small sub-populations - Website test on a low-traffic page - Tests on B2B customers<br/>- Tests where treatments are applied to store locations or geographies - When the treatment is expensive or risky</p>
 
 </article></slide><slide class=""><hgroup><h2>Wine retailer example</h2></hgroup><article  id="wine-retailer-example">
 
-<p>Suppose we want to know the effect of the email specifically for customers who have purchased more than $1,000 in the past.</p>
+<p>Let&#39;s imagine we conducted an activation test with customers who have never purchased, but have been active in the past day.</p>
 
 <pre class = 'prettyprint lang-r'>d &lt;- read.csv(&quot;test_data.csv&quot;)
-d_big &lt;- d[d$past_purch &gt; 1000, ]
-aggregate(cbind(open, click, purch) ~ group, 
-          data=d_big, FUN=mean)</pre>
+d &lt;- d[d$past_purch==0 &amp; d$days_since &lt; 1, ]
+nrow(d)</pre>
 
-<pre >##     group open     click    purch
-## 1    ctrl    0 0.0000000 49.77028
-## 2 email_A    1 0.1825641 51.23037
-## 3 email_B    1 0.1510067 51.82895</pre>
+<pre >## [1] 187</pre>
+
+<pre class = 'prettyprint lang-r'>aggregate(cbind(open, click, purch) ~ group, 
+          data=d, FUN=mean)</pre>
+
+<pre >##     group      open      click    purch
+## 1    ctrl 0.0000000 0.00000000 15.02295
+## 2 email_A 0.7627119 0.06779661 30.74441
+## 3 email_B 0.7164179 0.14925373 16.16985</pre>
 
 <p>There are big differences there, but are they statistically significant?</p>
 
-</article></slide><slide class=""><hgroup><h2>Do emails produce higher purchases by big spenders?</h2></hgroup><article  id="do-emails-produce-higher-purchases-by-big-spenders">
+</article></slide><slide class=""><hgroup><h2>Do emails produce higher purchases?</h2></hgroup><article  id="do-emails-produce-higher-purchases">
 
-<pre class = 'prettyprint lang-r'>d_big$email &lt;- d_big$group != &quot;ctrl&quot;
-summary(lm(purch ~ email, data=d_big))</pre>
+<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email, data=d))</pre>
 
 <pre >## 
 ## Call:
-## lm(formula = purch ~ email, data = d_big)
+## lm(formula = purch ~ email, data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-##  -51.52  -40.45  -21.82   11.21 1558.51 
+## -22.994 -22.994 -15.023   0.456 293.216 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   49.770      2.653  18.757   &lt;2e-16 ***
-## emailTRUE      1.746      3.249   0.538    0.591    
+##             Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)   15.023      5.968   2.517   0.0127 *
+## emailTRUE      7.971      7.271   1.096   0.2744  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 81.05 on 2800 degrees of freedom
-## Multiple R-squared:  0.0001032,  Adjusted R-squared:  -0.0002539 
-## F-statistic: 0.2889 on 1 and 2800 DF,  p-value: 0.5909</pre>
+## Residual standard error: 46.61 on 185 degrees of freedom
+## Multiple R-squared:  0.006455,   Adjusted R-squared:  0.001085 
+## F-statistic: 1.202 on 1 and 185 DF,  p-value: 0.2744</pre>
 
-<pre class = 'prettyprint lang-r'># t.test(purch ~ email, data=d_big, var.equal=TRUE) # equivalent</pre>
+<pre class = 'prettyprint lang-r'># t.test(purch ~ email, data=d, var.equal=TRUE) # equivalent</pre>
 
-<p>Well, they buy more, but the email effect isn&#39;t even close to significant (p=0.591).</p>
-
-</article></slide><slide class=""><hgroup><h2>Do big spenders click more on email A?</h2></hgroup><article  id="do-big-spenders-click-more-on-email-a">
-
-<pre class = 'prettyprint lang-r'>summary(glm(email ~ group, data=d_big[d_big$group != &quot;ctrl&quot;,]))</pre>
-
-<pre >## 
-## Call:
-## glm(formula = email ~ group, data = d_big[d_big$group != &quot;ctrl&quot;, 
-##     ])
-## 
-## Deviance Residuals: 
-##       Min         1Q     Median         3Q        Max  
-## 4.774e-15  4.774e-15  4.774e-15  4.996e-15  4.996e-15  
-## 
-## Coefficients:
-##                Estimate Std. Error    t value Pr(&gt;|t|)    
-## (Intercept)   1.000e+00  1.564e-16  6.393e+15   &lt;2e-16 ***
-## groupemail_B -2.362e-16  2.262e-16 -1.045e+00    0.296    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## (Dispersion parameter for gaussian family taken to be 2.385389e-29)
-## 
-##     Null deviance: 0.0000e+00  on 1868  degrees of freedom
-## Residual deviance: 4.4535e-26  on 1867  degrees of freedom
-## AIC: -117870
-## 
-## Number of Fisher Scoring iterations: 1</pre>
-
-<pre class = 'prettyprint lang-r'># prop.test(xtabs(~ group + click, data=d_big[d_big$group != &quot;ctrl&quot;,])[2:3,2:1])</pre>
+<p>Well, they buy more, but the email effect isn&#39;t even close to significant.</p>
 
 </article></slide><slide class=""><hgroup><h2>Power and precision</h2></hgroup><article  id="power-and-precision">
 
 <p>We won&#39;t always get statistical significance when there are real effects, becasue of noise in the data. <strong>Power</strong> is the likelihood that we will detect a effect when it exists. It is related to of the <strong>precision</strong> of the estimates.</p>
 
 <div class="centered">
-<div class="red2">
+<div class="red">
 <p>small sample sizes -&gt; low precision and low power</p></div></div>
 
 </article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section" class="flexbox vcenter">
 
-<p>When you know you are facing a small sample, including baseline variable that are associated with the outcome in your analysis will increase power and precision.</p>
-
 <div class="centered">
-<div class="red2">
+<div class="red">
 <p>big sample -&gt; use baseline vars to find heterogeneous treatment effects small sample -&gt; use baseline vars to mop up noise</p></div></div>
 
-</article></slide><slide class=""><hgroup><h2>&quot;Regression Correction&quot;</h2></hgroup><article  id="regression-correction">
+</article></slide><slide class=""><hgroup><h2>Fix #1: &quot;Regression Correction&quot;</h2></hgroup><article  id="fix-1-regression-correction">
 
-<p>If one of the baseline variables predicts the outcome, then including it in a regression analysis will reduce the error term.</p>
+<p>If one of the baseline variables predicts the outcome, then including it in a regression analysis will reduce the error term and increase precision.</p>
 
 <p>\(y = a + b x + c z + \varepsilon\)</p>
 
-<p>In a few minutes, I will tell you why you should never do this.</p>
-
 </article></slide><slide class=""><hgroup><h2>Regression correction for wine retailer</h2></hgroup><article  id="regression-correction-for-wine-retailer">
 
-<p>Standard analysis</p>
+<h3>Standard analysis</h3>
 
-<pre class = 'prettyprint lang-r'>d$email &lt;- d$group != &quot;ctrl&quot;
-summary(lm(purch ~ email, data=d_big))$coef</pre>
+<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email, data=d))$coef</pre>
 
-<pre >##              Estimate Std. Error    t value     Pr(&gt;|t|)
-## (Intercept) 49.770279   2.653429 18.7569689 4.872380e-74
-## emailTRUE    1.746409   3.248904  0.5375381 5.909387e-01</pre>
+<pre >##              Estimate Std. Error  t value   Pr(&gt;|t|)
+## (Intercept) 15.022951   5.968412 2.517077 0.01268273
+## emailTRUE    7.971494   7.271002 1.096340 0.27435493</pre>
 
-<p>Regression corrected</p>
+<h3>Regression corrected</h3>
 
-<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email + (last_purch &lt; 60) + (past_purch &gt; 50), data=d_big))$coef</pre>
+<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email + visits, data=d))$coef</pre>
 
-<pre >##                      Estimate Std. Error    t value     Pr(&gt;|t|)
-## (Intercept)         42.762779   3.050588 14.0178790 3.383137e-43
-## emailTRUE            2.043526   3.237888  0.6311292 5.280076e-01
-## last_purch &lt; 60TRUE 14.060209   3.053398  4.6047741 4.313433e-06</pre>
+<pre >##             Estimate Std. Error   t value   Pr(&gt;|t|)
+## (Intercept) 2.268382   9.470517 0.2395204 0.81096868
+## emailTRUE   8.657075   7.243119 1.1952137 0.23354175
+## visits      2.526067   1.461396 1.7285303 0.08557069</pre>
 
-<p>Notice the standard error on <code>emailTRUE</code> gets a tiny bit smaller.</p>
+<p>The standard error on emailTRUE may get a bit smaller, but if the baseline variable is unrealated to the outcome, then adding it won&#39;t help.</p>
 
 </article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Stratification</h2></hgroup><article  id="stratification">
 
 </article></slide><slide class=""><hgroup><h2>Post-stratification</h2></hgroup><article  id="post-stratification">
 
-<p>If your customers can be divided into strata that have more homogeneous treatment effects (based on a baseline variable(s)), then you can increase precision/power of your estimate of the overall average treatment effect by computing the estimate separately for each strata and then recombining. (See <a href='' title=''>Berman and Feit, 2018WP</a> for an application in marketing).</p>
+<p>If your customers can be divided into strata that have more homogeneous treatment effects (based on a baseline variable(s)), then you can increase precision/power of your estimate of the overall average treatment effect by computing the estimate separately for each strata and then recombining. (See <a href='https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3140631' title=''>Berman and Feit, 2018WP</a> for an application in marketing).</p>
 
 <p>Post-stratification is achieved in a regression framework by effects coding the strata indicator (which is a categorical baseline variable) and interacting the treatment indicator with the the baseline indicator.</p>
 
@@ -243,7 +211,7 @@ summary(lm(purch ~ email, data=d_big))$coef</pre>
 
 <p>Setup</p>
 
-<pre class = 'prettyprint lang-r'>d$strata &lt;- (d$last_purch &gt; 60)
+<pre class = 'prettyprint lang-r'>d$strata &lt;- (d$visits &lt; 3)
 contrasts(d$strata) &lt;- contr.sum(2)  # effects coding
 contrasts(d$strata)</pre>
 
@@ -251,33 +219,20 @@ contrasts(d$strata)</pre>
 ## FALSE    1
 ## TRUE    -1</pre>
 
-<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email*(last_purch &gt; 60), data=d_big))$coef</pre>
+<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email*strata, data=d))$coef</pre>
 
-<pre >##                                 Estimate Std. Error     t value
-## (Intercept)                    57.230211   3.708159 15.43358942
-## emailTRUE                       1.936522   4.576504  0.42314437
-## last_purch &gt; 60TRUE           -15.163653   5.286800 -2.86821010
-## emailTRUE:last_purch &gt; 60TRUE   0.316370   6.473973  0.04886798
-##                                   Pr(&gt;|t|)
-## (Intercept)                   1.230231e-51
-## emailTRUE                     6.722225e-01
-## last_purch &gt; 60TRUE           4.158923e-03
-## emailTRUE:last_purch &gt; 60TRUE 9.610280e-01</pre>
+<pre >##                    Estimate Std. Error   t value  Pr(&gt;|t|)
+## (Intercept)       11.830726   8.424518 1.4043209 0.1619182
+## emailTRUE          7.135615  10.047818 0.7101657 0.4785054
+## strata1            4.528504   8.424518 0.5375387 0.5915486
+## emailTRUE:strata1  1.661019  10.047818 0.1653114 0.8688813</pre>
 
-<p>&quot;Regression Corrected&quot;</p>
-
-<pre class = 'prettyprint lang-r'>summary(lm(purch ~ email + (last_purch &gt; 60), data=d_big))$coef</pre>
-
-<pre >##                       Estimate Std. Error    t value     Pr(&gt;|t|)
-## (Intercept)          57.126417   3.039072 18.7973250 2.489488e-74
-## emailTRUE             2.094618   3.236409  0.6472043 5.175528e-01
-## last_purch &gt; 60TRUE -14.952674   3.050841 -4.9011649 1.007022e-06</pre>
-
-</article></slide><slide class=""><hgroup><h2>Stratification and blocking</h2></hgroup><article  id="stratification-and-blocking">
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section-1">
 
 <p>The wine experiment was completely randomized. The number of subjects who got each treatment is almost perfectly equal. This maximizes the precision.</p>
 
-<pre class = 'prettyprint lang-r'>xtabs(~ group, data=d)</pre>
+<pre class = 'prettyprint lang-r'>big_d &lt;- read.csv(&quot;test_data.csv&quot;)
+xtabs(~ group, data=big_d)</pre>
 
 <pre >## group
 ##    ctrl email_A email_B 
@@ -285,13 +240,13 @@ contrasts(d$strata)</pre>
 
 <p>But we don&#39;t have perfect balance between the treatments within group.</p>
 
-<pre class = 'prettyprint lang-r'>xtabs(~ group + (last_purch &gt; 60), data=d_big)</pre>
+<pre class = 'prettyprint lang-r'>xtabs(~ group + (visits &lt; 3), data=big_d)</pre>
 
-<pre >##          last_purch &gt; 60
-## group     FALSE TRUE
-##   ctrl      474  459
-##   email_A   458  517
-##   email_B   448  446</pre>
+<pre >##          visits &lt; 3
+## group     FALSE  TRUE
+##   ctrl    37930  3400
+##   email_A 37945  3384
+##   email_B 37980  3349</pre>
 
 </article></slide><slide class=""><hgroup><h2>Stratification (aka blocking)</h2></hgroup><article  id="stratification-aka-blocking">
 
@@ -312,22 +267,27 @@ contrasts(d$strata)</pre>
 
 </article></slide><slide class=""><hgroup><h2>Matching</h2></hgroup><article  id="matching-1">
 
-<p>For instance, consider a test where the treatment is a ne store display, which will will install in some stores. We usually know lots of things about stores before the experiment.</p>
+<p>Consider a test where the treatment is a new store display, which we will install in some stores. We usually know lots of things about stores before the experiment.</p>
 
 <p><strong>Matching</strong> is when we use the baseline variables that we have on the stores to identify pairs of similar stores.</p>
 
 <p>One of the best ways to match stores is on past sales.</p>
 
-</article></slide><slide class=""><hgroup><h2>Matching in other domains</h2></hgroup><article  id="matching-in-other-domains">
-
-<ul>
-<li>Within-subjects designs (but introduces time confounding)</li>
-<li>Twin studies</li>
-</ul>
-
 </article></slide><slide class=""><hgroup><h2>Wait, doesn&#39;t this break randomization?</h2></hgroup><article  id="wait-doesnt-this-break-randomization">
 
 <p>No, we create pairs of matched stores and then randomize within each pair.</p>
+
+</article></slide><slide class=""><hgroup><h2>Matching in other domains</h2></hgroup><article  id="matching-in-other-domains">
+
+<ul>
+<li><strong>Within-subjects designs</strong> apply both treatments sequentially to each subject
+
+<ul>
+<li>Introduces time confounding</li>
+<li>Reverse the order for some (crossover design)</li>
+</ul></li>
+<li><strong>Twin studies</strong> randomly assign twins to different treatments</li>
+</ul>
 
 </article></slide><slide class=""><hgroup><h2>Paired comparsion signficance test</h2></hgroup><article  id="paired-comparsion-signficance-test">
 
@@ -335,19 +295,42 @@ contrasts(d$strata)</pre>
 
 <p><code>t.test(..., paired=TRUE)</code></p>
 
-</article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section-1" class="flexbox vcenter">
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section-2">
 
-<p>Block what you can, randomize what you can not. &#8211; atttibuted to George Box</p>
+<p>Block what you can, randomize what you can not.</p>
+
+<p>atttibuted to George Box, author of <em>Statistics for Experimenters</em></p>
+
+<img width="15%" src='images/box.jpg' title='fig:'/>
+
+</article></slide><slide class=""><hgroup><h2>Companies that specialize in small \(N\) test design</h2></hgroup><article  id="companies-that-specialize-in-small-n-test-design">
+
+<h3>Mastercard Data &amp; Services Test &amp; Learn</h3>
+
+<p>Formerly Applied Predictive Technologies</p>
+
+<h3>Google</h3>
+
+<p>See <a href='https://ai.google/research/pubs/pub38355' title=''>Vaver and Koehler 2011</a></p>
+
+</article></slide><slide class=""><hgroup><h2>Propensity matching with observational data</h2></hgroup><article  id="propensity-matching-with-observational-data">
+
+<p>Propensity matching attempts to construct an experiment from observational data using match. Matching is constrained by the treatment.</p>
+
+<img width="40%" src='images/propensity_score.png' title='fig:'/>
+
+<p>This is still subject to any selection bias related to unobserved variables.</p>
 
 </article></slide><slide class=""><hgroup><h2>Things you just learned</h2></hgroup><article  id="things-you-just-learned">
 
 <ul>
-<li>Small sample -&gt; use baseline variables to mop up noise</li>
-<li>Three options for using baseline variables
+<li>Small sample \(\rightarrow\) lower power/precision \(\rightarrow\) can&#39;t find significant differences</li>
+<li>Options for using baseline variables to improve power
 
 <ul>
-<li>(Post-)stratification</li>
-<li>Matching (pre-test)</li>
+<li>Add baseline variables as controls (&quot;regression correction&quot;)</li>
+<li>(Post-)stratification (\(x \times z\) interactions)</li>
+<li>Pre-test matching</li>
 </ul></li>
 </ul></article></slide>
 

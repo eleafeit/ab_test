@@ -47,18 +47,18 @@ library(grf)
 **Assignment**: randomly assigned (1/3 each)
 
 
-## Baseline variable: days since last purchase
+## Baseline variable: days since last activity
 ```{r, echo=FALSE}
 d <- read.csv("test_data.csv")
-hist(d$last_purch, 
-     xlab="Days Since Last Purchase", ylab="Customers", 
-     main="Histogram of Days Since Last Purchase")
+hist(d$days_since, 
+     xlab="Days Since Last Activity", ylab="Customers", 
+     main="Histogram of Days Since Last Activity")
 ```
 
 
 ## Experiments within experiments {.build}
 
-Consider the customers who have made a purchase in the last 60 days.  
+Consider the customers who have been active in the last 60 days.  
 
 Within that subset, customers were randomly assigned to recieve email A, email B or no email.  
 
@@ -67,19 +67,19 @@ So, we can analyze the data for a subgroup as it's own test test by slicing down
 However, we will only find signifcant results if we have enough sample in the subgroup. 
 
 
-## Recent buyers versus aged customers
+## Recent active versus aged customers
 ```{r, echo=FALSE}
-# aggregate(cbind(open, click, purch) ~ group + (last_purch < 60), 
+# aggregate(cbind(open, click, purch) ~ group + (days_since < 60), 
 #          data=d, FUN=mean)
 ```
 ```{r}
-d %>% group_by((last_purch < 60), group) %>% summarize(mean(open), mean(click), mean(purch))
+d %>% group_by((days_since < 60), group) %>% summarize(mean(open), mean(click), mean(purch))
 ```
 
-- The email seems to produce a stronger effect on purchases for more recent buyers
+- The email seems to produce a stronger effect on purchases for recently active customers.
 
 
-## Is email effective for recent buyers? 
+## Is email effective for recently actice? 
 ```{r,  warning=FALSE}
 d %>% filter(email==TRUE) %>% ggplot(aes(y=purch, x=group)) + 
   geom_dotplot(binaxis='y', stackdir='center', stackratio=0.1, dotsize=0.1, binwidth=0.1) +
@@ -87,15 +87,15 @@ d %>% filter(email==TRUE) %>% ggplot(aes(y=purch, x=group)) +
 ```
 
 
-## Significance test: recent buyers
+## Significance test: recently active
 ```{r}
-t.test(purch ~ email, data=d[d$last_purch < 60,])
+t.test(purch ~ email, data=d[d$days_since < 60,])
 ```
 
 
 ## Significance test: aged customers
 ```{r}
-t.test(purch ~ email, data=d[d$last_purch > 60,])
+t.test(purch ~ email, data=d[d$days_since > 60,])
 ```
 
 
@@ -142,10 +142,10 @@ When you think you've found a golden ticket, re-test before betting the company.
 Slicing and dicing will reveal two things about subgroups of customers. 
 
 1. Subgroups will vary in how much they engage in behaviors
-    - Recent buyers tend to have higher average purchases after the email
+    - Recently active tend to have higher average purchases after the email
    
 2. Subgroups vary in how they respond to treatments
-    - Recent buyers are more affected by the email
+    - Recently active are more affected by the email
 
 
 ## Heterogeneous treatment effects
@@ -215,10 +215,10 @@ If you don't like regression, you should try it because it gives you the ability
 ## Model with a baseline variable {.smaller}
 
 ```{r}
-m2 <- lm(purch ~ email + (last_purch < 60), data=d)
+m2 <- lm(purch ~ email + (days_since < 60), data=d)
 summary(m2)$coef
 ```
-Aged customers in the control group purchased on average \$5.55 in the 30-days after the email was sent. Recent customers in the control group purchased an additional \$13.55. The average effect of the email was \$6.44. 
+Aged customers in the control group purchased on average \$5.55 in the 30-days after the email was sent. Recently active customers in the control group purchased an additional \$13.55. The average effect of the email was \$6.44. 
 
 Controlling for baseline variables increases the likelihood of finding significant effects. This is sometimes called "regression correction."
 
@@ -233,15 +233,15 @@ $y = a + b x + c  z + d (x  z) + \varepsilon$
 
 The R formula for this model is: 
 
-`purch ~ email + (last_purch < 60)  + email:(last_purch < 60)`  
+`purch ~ email + (days_since < 60)  + email:(days_since < 60)`  
 
 or equivalently  
 
-`purch ~ email*(last_purch < 60)`  
+`purch ~ email*(days_since < 60)`  
 
 ## Incorporating heterogeneous treatment effects {.smaller}
 ```{r}
-m3 <- lm(purch ~ email + (last_purch < 60) + email:(last_purch < 60), data=d)
+m3 <- lm(purch ~ email + (days_since < 60) + email:(days_since < 60), data=d)
 summary(m3)$coef
 ```
 The email effect is \$5.36 for aged customers plus an additional \$2.23 recent customers (total of \$7.59). 
@@ -253,7 +253,7 @@ The email effect is \$5.36 for aged customers plus an additional \$2.23 recent c
 ## Uplift model for purchase amount {.smaller}
 An **uplift model** is a regression model that incorporates many baseline variables. For example:
 ```{r}
-m4 <- lm(purch ~ email*(last_purch < 60) + email*(past_purch > 50) + email*(visits > 3), 
+m4 <- lm(purch ~ email*(days_since < 60) + email*(past_purch > 50) + email*(visits > 3), 
          data=d)
 summary(m4)$coef
 ```
@@ -262,7 +262,7 @@ summary(m4)$coef
 ## Scoring customers with an uplift model
 If you have someone who wasn't in the test, but you know their baseline variables, you can use an uplift model to predict likely treatment effect. 
 ```{r}
-new_cust <- data.frame(past_purch=rep(38.12,2), last_purch=rep(19,2), visits=rep(3,2))
+new_cust <- data.frame(past_purch=rep(38.12,2), days_since=rep(19,2), visits=rep(3,2))
 (pred <- predict(m4, cbind(email=c(TRUE, FALSE), new_cust)))
 (lift <- pred[1] - pred[2])
 ```
@@ -271,7 +271,7 @@ This new customer is predicted to buy \$13.03 if they get an email or \$12.40 wi
 
 ## Scoring for another (better) customer
 ```{r}
-new_cust <- data.frame(past_purch=rep(127.88,2), last_purch=rep(19,2), visits=rep(40,2))
+new_cust <- data.frame(past_purch=rep(127.88,2), days_since=rep(19,2), visits=rep(40,2))
 (pred <- predict(m4, cbind(email=c(TRUE, FALSE), new_cust)))
 (lift <- pred[1] - pred[2])
 ```
@@ -294,7 +294,7 @@ Source: Predictive Analytics Times
 ## Uplift model for clicks
 We can also build an uplift model for click probability, but we should use a logistic regression for binary outcomes. 
 ```{r}
-m5 <- glm(click ~ group*(last_purch < 60) + group*(past_purch > 50) + group*(visits > 3) +
+m5 <- glm(click ~ group*(days_since < 60) + group*(past_purch > 50) + group*(visits > 3) +
                   group*(syrah > 0) + group*(cab > 0) + 
                   group*(sav_blanc > 0) + group*(chard > 0),
           family = binomial,
@@ -343,7 +343,7 @@ Advantages
 ```{r}
 treat <- d$email
 response <- d$purch
-baseline <- d[, c("last_purch", "past_purch", "visits", "chard", "sav_blanc", "syrah", "cab")]
+baseline <- d[, c("days_since", "past_purch", "visits", "chard", "sav_blanc", "syrah", "cab")]
 cf <- causal_forest(baseline, response, treat)
 print(cf)
 ```
@@ -359,7 +359,7 @@ This is similar to the estimate from our simple regression which was 6.42 (0.30)
 Just like any uplift model, we can use the model to predict the email effect for new customers. 
 ```{r}
 new_cust <- data.frame(chard=38.12, sav_blanc=0, syrah=0, cab=0,  
-                       past_purch=38.12, last_purch=19, visits=3)
+                       past_purch=38.12, days_since=19, visits=3)
 predict(cf, new_cust, estimate.variance = TRUE)
 ```
 
@@ -379,11 +379,11 @@ plot(d$past_purch, predict(cf)$predictions, cex=0.5, col=trans_gray,
 ```
 
 
-## Uplift versus days since last purchase
+## Uplift versus days since last active
 ```{r}
 trans_gray <- rgb(0.1, 0.1, 0.1, alpha=0.1)
-plot(d$last_purch, predict(cf)$predictions, cex=0.5, col=trans_gray,
-     xlab="Days Since Last Purchase", ylab="Predicted Treatment Effect ($)")
+plot(d$days_since, predict(cf)$predictions, cex=0.5, col=trans_gray,
+     xlab="Days Since Last Active", ylab="Predicted Treatment Effect ($)")
 ```
 
 
