@@ -20,7 +20,7 @@
       // Slide settings
       settings: {
                 title: 'Advanced A/B Testing',
-                        subtitle: 'Profit Maximizing A/B Tests',
+                        subtitle: 'Profit-Maximizing A/B Tests',
                 useBuilds: true,
         usePrettify: true,
         enableSlideAreas: true,
@@ -101,7 +101,7 @@ slide:not(.current) .plotly.html-widget{
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
       <p data-config-presenter><!-- populated from slide_config.json --></p>
-            <p style="margin-top: 6px; margin-left: -2px;">6/10/2019</p>
+            <p style="margin-top: 6px; margin-left: -2px;">6/16/2019</p>
           </hgroup>
   </slide>
 
@@ -156,22 +156,32 @@ slide:not(.current) .plotly.html-widget{
 
 <p>\[n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2\] If the priors are different for each group (eg a holdout test), the optimal sample sizes can be found numerically. This new sample size formula was recently derived by <a href='https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3274875' title=''>Feit and Berman (2019) <em>Marketing Science</em></a>.</p>
 
-</article></slide><slide class=""><hgroup><h2>Interpreting the sample size formula</h2></hgroup><article  id="interpreting-the-sample-size-formula">
+</article></slide><slide class=""><hgroup><h2>Test &amp; Roll in math</h2></hgroup><article  id="test-roll-in-math">
 
 <p><strong>Response</strong><br/>\[y_1 \sim N(m_1, s)  \,\,\,\,\,\,\, y_2 \sim N(m_2, s)\]</p>
 
 <p><strong>Priors</strong><br/>\[m_1 \sim N(\mu, \sigma) \,\,\,\,\,\,\, m_2 \sim N(\mu, \sigma)\]</p>
 
-<p><strong>Profit-maximizing sample size</strong> \[n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2\] Bigger population (\(N\)) \(\rightarrow\) bigger test</p>
+<p><strong>Profit-maximizing sample size</strong> \[n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2\]</p>
+
+</article></slide><slide class=""><hgroup><h2>Interpreting the sample size formula</h2></hgroup><article  id="interpreting-the-sample-size-formula">
+
+<p>Bigger population (\(N\)) \(\rightarrow\) bigger test</p>
 
 <p>More noise in the repsonse (\(s\)) \(\rightarrow\) bigger test</p>
 
 <p>More prior difference between treatments (\(\sigma\)) \(\rightarrow\) smaller test</p>
 
+<p>\[n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2\]</p>
+
 </article></slide><slide class=""><hgroup><h2>Test &amp; Roll procedure</h2></hgroup><article  id="test-roll-procedure">
 
 <ol>
-<li>Come up with priors distributions for each treatment (from past data, if you&#39;ve got it)</li>
+<li>Come up with priors distributions for each treatment
+
+<ul>
+<li>Use past data, if you&#39;ve got it</li>
+</ul></li>
 <li>Use the priors to compute the optimal sample size</li>
 <li>Run the test</li>
 <li>Deploy the treatment with the higher posterior to the remainder of the population
@@ -239,15 +249,15 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 ## Chain 1: Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 10000 / 10000 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.130565 seconds (Warm-up)
-## Chain 1:                0.105265 seconds (Sampling)
-## Chain 1:                0.23583 seconds (Total)
+## Chain 1:  Elapsed Time: 0.147693 seconds (Warm-up)
+## Chain 1:                0.109859 seconds (Sampling)
+## Chain 1:                0.257552 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL &#39;test_roll_model&#39; NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 5e-06 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.05 seconds.
+## Chain 2: Gradient evaluation took 6e-06 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.06 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -264,15 +274,15 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 ## Chain 2: Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 10000 / 10000 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.133158 seconds (Warm-up)
-## Chain 2:                0.108805 seconds (Sampling)
-## Chain 2:                0.241963 seconds (Total)
+## Chain 2:  Elapsed Time: 0.138713 seconds (Warm-up)
+## Chain 2:                0.108918 seconds (Sampling)
+## Chain 2:                0.247631 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL &#39;test_roll_model&#39; NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 5e-06 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.05 seconds.
+## Chain 3: Gradient evaluation took 4e-06 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.04 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -289,9 +299,9 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 ## Chain 3: Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 10000 / 10000 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.128393 seconds (Warm-up)
-## Chain 3:                0.106987 seconds (Sampling)
-## Chain 3:                0.23538 seconds (Total)
+## Chain 3:  Elapsed Time: 0.133839 seconds (Warm-up)
+## Chain 3:                0.103813 seconds (Sampling)
+## Chain 3:                0.237652 seconds (Total)
 ## Chain 3: 
 ## 
 ## SAMPLING FOR MODEL &#39;test_roll_model&#39; NOW (CHAIN 4).
@@ -314,9 +324,9 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 ## Chain 4: Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Chain 4: Iteration: 10000 / 10000 [100%]  (Sampling)
 ## Chain 4: 
-## Chain 4:  Elapsed Time: 0.129213 seconds (Warm-up)
-## Chain 4:                0.113867 seconds (Sampling)
-## Chain 4:                0.24308 seconds (Total)
+## Chain 4:  Elapsed Time: 0.128377 seconds (Warm-up)
+## Chain 4:                0.109363 seconds (Sampling)
+## Chain 4:                0.23774 seconds (Total)
 ## Chain 4:</pre>
 
 </article></slide><slide class=""><hgroup><h2>Fitted model</h2></hgroup><article  id="fitted-model">
@@ -333,7 +343,7 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 ## sigma   4.396460 1.16720358   3.551662   7.170244
 ## lp__  -13.144293 1.87010160 -14.175073 -10.459587</pre>
 
-</article></slide><slide class=""><hgroup><h2>Compute optimal sample size</h2></hgroup><article  id="compute-optimal-sample-size" class="smaller">
+</article></slide><slide class=""><hgroup><h2>Compute optimal sample size</h2></hgroup><article  id="compute-optimal-sample-size">
 
 <pre class = 'prettyprint lang-r'>source(&quot;nn_functions.R&quot;)</pre>
 
@@ -343,42 +353,39 @@ m1 &lt;- stan(file=&quot;test_roll_model.stan&quot;, data=d1, seed=20030601,
 
 <pre >## Loading required package: parallel</pre>
 
-<pre class = 'prettyprint lang-r'>mu &lt;- 10.36044
-sigma &lt;- 4.39646
-s &lt;- mean(d1$s)
-N &lt;- 1000000
-(n &lt;- test_size_nn(N, s, mu, sigma))</pre>
+<pre class = 'prettyprint lang-r'>(n &lt;- test_size_nn(N=1000000, s=mean(d1$s), mu=10.36044, sigma=4.39646))</pre>
 
 <pre >## [1] 11390.89 11390.89</pre>
 
-</article></slide><slide class=""><hgroup><h2>Evaluate the test</h2></hgroup><article  id="evaluate-the-test" class="smaller">
+</article></slide><slide class=""><hgroup><h2>Evaluate the test</h2></hgroup><article  id="evaluate-the-test">
 
-<pre class = 'prettyprint lang-r'>(eval &lt;- test_eval_nn(n, N, s, mu, sigma))</pre>
+<pre class = 'prettyprint lang-r'>(eval &lt;- test_eval_nn(n=n, N=1000000, s=mean(d1$s), mu=10.36044, sigma=4.3964))</pre>
 
 <pre >##         n1       n2 profit_per_cust   profit profit_test profit_deploy
-## 1 11390.89 11390.89        12.72718 12727185    236029.3      12491156
+## 1 11390.89 11390.89        12.72715 12727151    236029.3      12491122
 ##   profit_rand profit_perfect profit_gain      regret error_rate
-## 1    10360440       12840877   0.9541645 0.008853919 0.06927832
+## 1    10360440       12840843   0.9541639 0.008853939 0.06927924
 ##   deploy_1_rate tie_rate
 ## 1           0.5        0</pre>
 
 </article></slide><slide class=""><hgroup><h2>Compare to sample size for hypothesis test</h2></hgroup><article  id="compare-to-sample-size-for-hypothesis-test">
 
-<p>Null hypothesis test size to detect difference between display ads have no effect and display ads are exactly worth the costs (ROI = 0 versus ROI = -100).</p>
+<p>Null hypothesis test size to detect difference between:<br/>- display ads that have no effect - display ads that are exactly worth the costs (ROI = 0 versus ROI = -100).</p>
 
 <pre class = 'prettyprint lang-r'>margin &lt;- 0.5
 d &lt;- mean(lr$cost[c])/margin
-(n_nht &lt;- test_size_nht(s=s, d=d))  </pre>
+(n_nht &lt;- test_size_nht(s=mean(d1$s), d=d))  </pre>
 
 <pre >## [1] 4782433</pre>
 
 </article></slide><slide class=""><hgroup><h2>Sample size for hypothesis test with finite population correction</h2></hgroup><article  id="sample-size-for-hypothesis-test-with-finite-population-correction">
 
-<pre class = 'prettyprint lang-r'>(n_fpc &lt;- test_size_nht(s=s, d=d, N=N))  </pre>
+<pre class = 'prettyprint lang-r'>(n_fpc &lt;- test_size_nht(s=mean(d1$s), d=d, N=1000000))  </pre>
 
 <pre >## [1] 452673.4</pre>
 
-<pre class = 'prettyprint lang-r'>(eval_fpc &lt;- test_eval_nn(c(n_fpc, n_fpc), N, s, mu, sigma))</pre>
+<pre class = 'prettyprint lang-r'>(eval_fpc &lt;- test_eval_nn(c(n_fpc, n_fpc), N=1000000, 
+                          s=mean(d1$s), mu=10.36044, sigma=4.39646))</pre>
 
 <pre >##         n1       n2 profit_per_cust   profit profit_test profit_deploy
 ## 1 452673.4 452673.4        10.59508 10595077     9379790       1215287
@@ -389,7 +396,7 @@ d &lt;- mean(lr$cost[c])/margin
 
 </article></slide><slide class=""><hgroup><h2>Comparison of display ad tests</h2></hgroup><article  id="comparison-of-display-ad-tests">
 
-<img width="100%" src='images/tr_display' title='fig:'/>
+<img width="100%" src='images/tr_display.png' title='fig:'/>
 
 </article></slide><slide class="segue dark nobackground level1"><hgroup class = 'auto-fadein'><h2>Multi-armed bandits</h2></hgroup><article  id="multi-armed-bandits">
 
@@ -397,11 +404,11 @@ d &lt;- mean(lr$cost[c])/margin
 
 <p>Multi-armed bandits are a dynamic profit-maximizing approach that is more flexible than a test &amp; roll experiment. They are often referred to as the &quot;machine learning for the A/B testing world.&quot;</p>
 
-<img width="50%" src='' title='fig:'/>
+<img width="50%" src='images/bandits.jpeg' title='fig:'/>
 
 <p>Source: personal photo from Ceasar&#39;s Palace, Las Vegas</p>
 
-</article></slide><slide class=""><hgroup><h2>Multi-armed bandit process</h2></hgroup><article  id="multi-armed-bandit-process">
+</article></slide><slide class=""><hgroup><h2>Multi-armed bandit process/problem</h2></hgroup><article  id="multi-armed-bandit-processproblem">
 
 <ol>
 <li>Define treatment probabilities \(p_k\)</li>
@@ -427,17 +434,17 @@ d &lt;- mean(lr$cost[c])/margin
 
 </article></slide><slide class=""><hgroup><h2>Thompson sampling for 3 treatments</h2></hgroup><article  id="thompson-sampling-for-3-treatments">
 
-<img width="50%" src='images/thom_samp.png' title='fig:'/>
+<img width="75%" src='images/thom_samp.png' title='fig:'/>
 
 <p>Source: eigenfoo.xyz</p>
 
-</article></slide><slide class=""><hgroup><h2>How to Thompson sampling and Test &amp; Roll compare?</h2></hgroup><article  id="how-to-thompson-sampling-and-test-roll-compare">
+</article></slide><slide class=""><hgroup><h2>How do Thompson sampling and Test &amp; Roll compare?</h2></hgroup><article  id="how-do-thompson-sampling-and-test-roll-compare">
 
-<p>Both methods are profit-maximizing We can compare them based on how much profit they generate.</p>
+<p>Both methods are profit-maximizing. We can compare them based on how much profit they generate.</p>
+
+<p>Thompson sampling is less constrained, so will always produce more profit on average.</p>
 
 <p>Statisticans are a pessimistic lot, so we prefer to compute <strong>regret</strong> for an algorithm, which is the difference between profit with perfect information and profit with the algorithm.</p>
-
-<p>Thompson sampling is less constrained, so will always perform better on average.</p>
 
 </article></slide><slide class=""><hgroup><h2>Comparison of regret for Thompson sampling and Test &amp; Roll</h2></hgroup><article  id="comparison-of-regret-for-thompson-sampling-and-test-roll">
 
@@ -457,9 +464,9 @@ d &lt;- mean(lr$cost[c])/margin
 <li>Works when response takes a long time to measure
 
 <ul>
-<li>Long purchase cycle items</li>
+<li>Long purchase cycles</li>
 </ul></li>
-<li>Works when iterative allocation would be challenging
+<li>Works when iterative allocation would be time-consuming
 
 <ul>
 <li>Email, catalog and direct mail</li>
@@ -471,9 +478,22 @@ d &lt;- mean(lr$cost[c])/margin
 </ul></li>
 </ul>
 
-<p>Test &amp; Roll sample size can be used as a conservative estimate of how long to run a bandit algorithm.</p>
+<p>Test &amp; Roll profit-maximizing sample size can be used as a conservative estimate of how long to run a bandit algorithm.</p>
 
-</article></slide><slide class=""><hgroup><h2></h2></hgroup><article  id="section"></article></slide>
+</article></slide><slide class=""><hgroup><h2>Things you just learned</h2></hgroup><article  id="things-you-just-learned">
+
+<ul>
+<li>Test &amp; Roll experiments
+
+<ul>
+<li>Profit-maximizing sample size</li>
+</ul></li>
+<li>Multi-armed bandits
+
+<ul>
+<li>Thompson sampling</li>
+</ul></li>
+</ul></article></slide>
 
 
   <slide class="backdrop"></slide>

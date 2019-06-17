@@ -1,6 +1,6 @@
 ---
 title: "Advanced A/B Testing"
-subtitle: "When your sample size is small"
+subtitle: "Small Sample A/B Tests"
 author: "Elea McDonnell Feit"
 date: "6/10/2019"
 output: ioslides_presentation
@@ -15,7 +15,7 @@ setwd("~/repos/ab_test/code")
 In the age of digital marketing, you'd think we would always have big samples. Not true!
 
 Small sample tests:  
-- Website test on a low-traffic page  
+- Website test on a low-traffic page 
 - Tests on B2B customers  
 - Tests where the store or geography is the unit of analysis  
 - When the treatment is expensive or risky  
@@ -73,8 +73,6 @@ small sample -> use baseline vars to mop up noise
 If one of the baseline variables predicts the outcome, then including it in a regression analysis will reduce the error term.  
 
 $y = a + b x + c  z + \varepsilon$
-
-In a few minutes, I will tell you why you should never do this. 
 
 
 ## Regression correction for wine retailer
@@ -147,8 +145,10 @@ One of the best ways to match stores is on past sales.
 
 
 ## Matching in other domains
-- Within-subjects designs (but introduces time confounding)
-- Twin studies
+- **Within-subjects designs** apply both treatments sequentially to each subject
+    - Introduces time confounding
+    - Reverse the order for some (crossover design)
+- **Twin studies** randomly assign twins to different treatments
 
 
 ## Wait, doesn't this break randomization? 
@@ -163,7 +163,7 @@ When you've matched units in advance, you should analyze the test as a paired co
 ## {.flexbox .vcenter}
 Block what you can, randomize what you can not. 
 -- atttibuted to George Box
-
+~[](images/box.jpeg){width=25%}
 
 ## Things you just learned 
 - Small sample -> use baseline variables to mop up noise

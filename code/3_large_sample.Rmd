@@ -2,7 +2,7 @@
 title: "Advanced A/B Testing"
 subtitle: "Large Sample A/B Tests"
 author: "Elea McDonnell Feit"
-date: "6/10/2019"
+date: "6/16/2019"
 output: ioslides_presentation
 widescreen: yes
 ---
@@ -247,7 +247,7 @@ summary(m3)$coef
 The email effect is \$5.36 for aged customers plus an additional \$2.23 recent customers (total of \$7.59). 
 
 
-## Uplift modeling (finally!)
+# Uplift modeling (finally!)
 
 
 ## Uplift model for purchase amount {.smaller}
@@ -353,7 +353,7 @@ print(cf)
 ```{r}
 average_treatment_effect(cf, method="AIPW")
 ```
-
+This is similar to the estimate from our simple regression which was 6.42 (0.30). 
 
 ## Predicted uplift 
 Just like any uplift model, we can use the model to predict the email effect for new customers. 

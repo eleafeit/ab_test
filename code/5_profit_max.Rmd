@@ -121,6 +121,7 @@ m1 <- stan(file="test_roll_model.stan", data=d1, seed=20030601,
            iter=10000)
 ```
 
+
 ## Fitted model
 ```{r}
 summary(m1)$summary[,c(1,3,5,8)]
@@ -134,30 +135,34 @@ source("nn_functions.R")
 (n <- test_size_nn(N=1000000, s=mean(d1$s), mu=10.36044, sigma=4.39646))
 ```
 
-## Evaluate the test {.smaller}
+## Evaluate the test
 ```{R}
-(eval <- test_eval_nn(n, N, s, mu, sigma))
+(eval <- test_eval_nn(n=n, N=1000000, s=mean(d1$s), mu=10.36044, sigma=4.3964))
 ```
 
 
 ## Compare to sample size for hypothesis test 
-Null hypothesis test size to detect difference between display ads have no effect and display ads are exactly worth the costs (ROI = 0 versus ROI = -100).
+Null hypothesis test size to detect difference between:  
+- display ads that have no effect 
+- display ads that are exactly worth the costs 
+(ROI = 0 versus ROI = -100).
 ```{r}
 margin <- 0.5
 d <- mean(lr$cost[c])/margin
-(n_nht <- test_size_nht(s=s, d=d))  
+(n_nht <- test_size_nht(s=mean(d1$s), d=d))  
 ```
 
 
 ## Sample size for hypothesis test with finite population correction
 ```{r}
-(n_fpc <- test_size_nht(s=s, d=d, N=N))  
-(eval_fpc <- test_eval_nn(c(n_fpc, n_fpc), N, s, mu, sigma))
+(n_fpc <- test_size_nht(s=mean(d1$s), d=d, N=1000000))  
+(eval_fpc <- test_eval_nn(c(n_fpc, n_fpc), N=1000000, 
+                          s=mean(d1$s), mu=10.36044, sigma=4.39646))
 ```
 
 
 ## Comparison of display ad tests
-![](images/tr_display){width=100%}
+![](images/tr_display.png){width=100%}
 
 
 # Multi-armed bandits
@@ -165,11 +170,11 @@ d <- mean(lr$cost[c])/margin
 ## Multi-armed bandits
 Multi-armed bandits are a dynamic profit-maximizing approach that is more flexible than a test & roll experiment. They are often referred to as the "machine learning for the A/B testing world." 
 
-![](){width=50%}
+![](images/bandits.jpeg){width=50%}
 
 Source: personal photo from Ceasar's Palace, Las Vegas
 
-## Multi-armed bandit process
+## Multi-armed bandit process/problem
 
 1. Define treatment probabilities $p_k$ 
 2. Asssign one or a few units to treatments with probability for each treatment $k$
@@ -190,18 +195,18 @@ A popular approach multi-armed bandit problems was proposed by Thompson in 1933.
 There are other methods that work better in specific contexts, but Thompson sampling is very robust.
 
 ## Thompson sampling for 3 treatments
-![](images/thom_samp.png){width=50%}
+![](images/thom_samp.png){width=75%}
 
 Source: eigenfoo.xyz
 
 
-## How to Thompson sampling and Test & Roll compare? 
+## How do Thompson sampling and Test & Roll compare? 
 
-Both methods are profit-maximizing We can compare them based on how much profit they generate. 
+Both methods are profit-maximizing. We can compare them based on how much profit they generate. 
+
+Thompson sampling is less constrained, so will always produce more profit on average. 
 
 Statisticans are a pessimistic lot, so we prefer to compute **regret** for an algorithm, which is the difference between profit with perfect information and profit with the algorithm. 
-
-Thompson sampling is less constrained, so will always perform better on average. 
 
 
 ## Comparison of regret for Thompson sampling and Test & Roll
@@ -219,18 +224,18 @@ Source: [Feit and Berman 2019](https://papers.ssrn.com/sol3/papers.cfm?abstract_
 ## Why do Test & Roll? 
 
 - Works when response takes a long time to measure
-    - Long purchase cycle items
-- Works when iterative allocation would be challenging
+    - Long purchase cycles
+- Works when iterative allocation would be time-consuming
     - Email, catalog and direct mail
 - Reduces complexity for website tests
     - Don't need bandit interacting with site  
     
-Test & Roll sample size can be used as a conservative estimate of how long to run a bandit algorithm.
+Test & Roll profit-maximizing sample size can be used as a conservative estimate of how long to run a bandit algorithm.
 
 
 ## Things you just learned
 
 - Test & Roll experiments
-   - Profit-maximizing sample size
+    - Profit-maximizing sample size
 - Multi-armed bandits
-- Thompson sampling
+    - Thompson sampling
