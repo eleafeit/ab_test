@@ -1,8 +1,8 @@
 ---
 title: "Advanced A/B Testing"
-subtitle: "Profit Maximizing A/B Tests"
+subtitle: "Profit-Maximizing A/B Tests"
 author: "Elea McDonnell Feit"
-date: "6/10/2019"
+date: "6/16/2019"
 output: ioslides_presentation
 widescreen: yes
 ---
@@ -19,13 +19,13 @@ library(rstan)
 ## Hypothesis testing doesn't quite fit this problem
 
 1. Hypothesis tests focus on minimizing Type I error
-    - Doesn't matter when we are deciding which treatment to deploy 
+    - Doesn't matter when we are deciding which of two equal-cost treatments to deploy 
 
-2. Populations are limited and hypothesis test 
+2. Populations are limited and hypothesis tests don't recognize this
     - Sample size formulas will suggest sample sizes larger than the population
     
 3. When a hypothesis test is insignificant, it doesn't tell you what to do. 
-    - Choose randomly? That doesn't make sense. 
+    - Choose randomly? That doesn't make sense!
     
 4. Doesn't allow for unequal group sizes
     - But we see these all the time in media holdout testing
@@ -33,44 +33,58 @@ library(rstan)
     
 ## A/B tests as a decision problem
 ### Test
-Choose n1* and n2* customers to send the treatments.  
+Choose $n_1^*$ and $n_2^*$ customers to send the treatments.  
 Collect data on response.  
 
 ### Roll
-Choose a treatment to deploy to the remaining N - n1* - n2*.  
+Choose a treatment to deploy to the remaining $N - n_1^* - n_2^*$.  
 
 ### Objective
 Maximize combined profit for test stage and the roll stage.   
 
 
 ## Profit-maximizing sample size
-For the case where response is normally distributed with a symmetric normal prior on the means, the profit maximizing  
+For the case where response is normally distributed with variance $s$ and a symmetric normal prior on the mean response ($m_1, m_2 \sim N(\mu, \sigma)$), the profit maximizing sample size is 
 
 $$n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2$$
-If the priors are different for each group (eg a holdout test), the optimal sample sizes can be found numerically.
+If the priors are different for each group (eg a holdout test), the optimal sample sizes can be found numerically. This new sample size formula was recently derived by [Feit and Berman (2019) *Marketing Science*](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3274875).
 
 
-## Profit-maximizing sample size
-For the case where response is normally distributed with a symmetric normal prior on the means, the profit-maximizing sample size is
+## Test & Roll in math 
+**Response**  
+$$y_1 \sim N(m_1, s)  \,\,\,\,\,\,\, y_2 \sim N(m_2, s)$$
+
+**Priors**  
+$$m_1 \sim N(\mu, \sigma) \,\,\,\,\,\,\, m_2 \sim N(\mu, \sigma)$$
+
+**Profit-maximizing sample size**
+$$n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2$$
+
+
+## Interpreting the sample size formula
+
+Bigger population ($N$) $\rightarrow$ bigger test  
+
+More noise in the repsonse ($s$) $\rightarrow$ bigger test  
+
+More prior difference between treatments ($\sigma$) $\rightarrow$ smaller test 
 
 $$n_1 = n_2 = \sqrt{\frac{N}{4}\left( \frac{s}{\sigma} \right)^2 + \left( \frac{3}{4} \left( \frac{s}{\sigma} \right)^2  \right)^2 } -  \frac{3}{4} \left(\frac{s}{\sigma} \right)^2$$
-Bigger population ($N$) &rightarrow bigger test  
-
-More noise in the repsonse ($s$) > bigger test  
-
-More prior difference between treatments ($\sigma$) > smaller test  
+ 
 
 
 ## Test & Roll procedure
-1. Come up with priors (from past data, if you've got it)
+1. Come up with priors distributions for each treatment 
+    - Use past data, if you've got it
 2. Use the priors to compute the optimal sample size
 3. Run the test
-4. Choose the treatment with the higher posterior 
-    - Which is the same if the prior are symmetric
+4. Deploy the treatment with the higher posterior to the remainder of the population
+    - Priors are symmetric $\rightarrow$ pick the treatment with the higher average
 
 
-## Hierarchical model for past experiments {.smaller}
-```{}
+## Come up with priors {.smaller}
+**Hierarchical Stan model for past experiments**
+```{stan, output.var="lr"}
 // Stan code for Lewis and Rao 2015 data
 // L&R only report the mean and standard deviation for the control group for each experiment
 data {
@@ -96,6 +110,7 @@ model {
 }
 ```
 
+
 ## Fit hierarchical model to past experiments
 ```{r, include=TRUE, cashe=TRUE}
 lr <- read.csv("display_LewisRao2015Retail.csv")
@@ -111,14 +126,12 @@ m1 <- stan(file="test_roll_model.stan", data=d1, seed=20030601,
 summary(m1)$summary[,c(1,3,5,8)]
 ```
 
-## Compute optimal sample size {.smaller}
-```{r}
+## Compute optimal sample size
+```{r, results="hide"}
 source("nn_functions.R")
-mu <- 10.36044
-sigma <- 4.39646
-s <- mean(d1$s)
-N <- 1000000
-(n <- test_size_nn(N, s, mu, sigma))
+```
+```{r}
+(n <- test_size_nn(N=1000000, s=mean(d1$s), mu=10.36044, sigma=4.39646))
 ```
 
 ## Evaluate the test {.smaller}
@@ -126,15 +139,17 @@ N <- 1000000
 (eval <- test_eval_nn(n, N, s, mu, sigma))
 ```
 
-## Compare to hypothesis test 
-Null hypothesis test size to detect ROI = 0 versus ROI = -100
+
+## Compare to sample size for hypothesis test 
+Null hypothesis test size to detect difference between display ads have no effect and display ads are exactly worth the costs (ROI = 0 versus ROI = -100).
 ```{r}
 margin <- 0.5
 d <- mean(lr$cost[c])/margin
 (n_nht <- test_size_nht(s=s, d=d))  
 ```
 
-## Compare to hypothesis test with finite population correction
+
+## Sample size for hypothesis test with finite population correction
 ```{r}
 (n_fpc <- test_size_nht(s=s, d=d, N=N))  
 (eval_fpc <- test_eval_nn(c(n_fpc, n_fpc), N, s, mu, sigma))
@@ -144,35 +159,54 @@ d <- mean(lr$cost[c])/margin
 ## Comparison of display ad tests
 ![](images/tr_display){width=100%}
 
+
 # Multi-armed bandits
 
 ## Multi-armed bandits
-Multi-armed bandits are a dynamic profit-maximizing approach that is more flexible than a test & roll experiment. 
+Multi-armed bandits are a dynamic profit-maximizing approach that is more flexible than a test & roll experiment. They are often referred to as the "machine learning for the A/B testing world." 
 
-- Asssign units to treatments with probability $p_k$
-- Collect data 
-- Adjust $p_k$ based on the data 
-- Repeat
+![](){width=50%}
+
+Source: personal photo from Ceasar's Palace, Las Vegas
+
+## Multi-armed bandit process
+
+1. Define treatment probabilities $p_k$ 
+2. Asssign one or a few units to treatments with probability for each treatment $k$
+3. Collect data 
+4. Adjust $p_k$'s based on the data 
+5. Repeat
 
 
 ## Thompson sampling
 A popular approach multi-armed bandit problems was proposed by Thompson in 1933. 
 
-- Start with a prior
-- Assign units to treatments based on the probability that the treatment is best
-- Collect data
-- Update prior
-- Repeat
+1. Start with prior distributions on the performance of each treatment 
+2. Assign units to treatments based on the probability that the treatment is best
+3. Collect data
+4. Update priors
+5. Repeat
 
 There are other methods that work better in specific contexts, but Thompson sampling is very robust.
 
-## Thompson sampling
-![](images/thom_samp.png)
+## Thompson sampling for 3 treatments
+![](images/thom_samp.png){width=50%}
+
+Source: eigenfoo.xyz
 
 
-## Comparison of Thompson sampling and Test & Roll
+## How to Thompson sampling and Test & Roll compare? 
+
+Both methods are profit-maximizing We can compare them based on how much profit they generate. 
+
+Statisticans are a pessimistic lot, so we prefer to compute **regret** for an algorithm, which is the difference between profit with perfect information and profit with the algorithm. 
+
+Thompson sampling is less constrained, so will always perform better on average. 
+
+
+## Comparison of regret for Thompson sampling and Test & Roll
 ![](images/ts_tr_N_K.png){width=100%}
-
+Source: [Feit and Berman 2019](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3274875)
 
 ## Comparison of Thompson sampling and Test & Roll
 ![](images/ts_tr_s_sigma.png){width=100%}
@@ -180,3 +214,23 @@ There are other methods that work better in specific contexts, but Thompson samp
 
 ## Comparison of Thompson sampling and Test & Roll
 ![](images/ts_tr_mu.png){width=100%}
+
+
+## Why do Test & Roll? 
+
+- Works when response takes a long time to measure
+    - Long purchase cycle items
+- Works when iterative allocation would be challenging
+    - Email, catalog and direct mail
+- Reduces complexity for website tests
+    - Don't need bandit interacting with site  
+    
+Test & Roll sample size can be used as a conservative estimate of how long to run a bandit algorithm.
+
+
+## Things you just learned
+
+- Test & Roll experiments
+   - Profit-maximizing sample size
+- Multi-armed bandits
+- Thompson sampling

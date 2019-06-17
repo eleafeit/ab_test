@@ -1,7 +1,7 @@
 ---
 title: "Advanced A/B Testing"
 author: "Elea McDonnell Feit"
-date: "6/7/2019"
+date: "6/16/2019"
 output:
   ioslides_presentation: default
 subtitle: Introduction

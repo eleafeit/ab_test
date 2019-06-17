@@ -55,7 +55,7 @@ d$open[d$group == "ctrl"] <- 0
 p <- 1/(1+exp(2 - 0.5*(d$group=="email_A") - 0.5*(d$syrah >0)*(d$group=="email_B")))
 d$click <- (runif(N) < p) * 1
 d$click[!(d$open==1)] <- 0
-p <-  1/(1+exp(1 - d$past_purch/300 + d$last_purch/60 + (d$group != "ctrl")*d$past_purch/300- 1*(d$click==1)))
+p <-  1/(1+exp(1 - d$past_purch/300 + d$last_purch/60 - (d$group != "ctrl")*d$past_purch/300 - 1*(d$click==1)))
 d$purch <- round(exp(rnorm(N, mean=3.6, sd=1)) * (runif(N) < p), 2)
 d$purch[d$purch<12.32] <- 0
 

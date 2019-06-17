@@ -1,7 +1,7 @@
 ---
 title: 'Advanced AB Testing'
 subtitle: "Test Analysis Basics"
-date: "6/8/2019"
+date: "6/16/2019"
 output: ioslides_presentation
 widescreen: true
 incremental: true
@@ -52,7 +52,7 @@ head(d)
 - **Response (y's)**
     - Outcome(s) measured for each customer, AKA the dependant variable
     
-- **Baseline variables (z'x)**
+- **Baseline variables (z's)**
     - Other stuff we know about customers **prior** to the randomization
     - Sometimes called "pre-randomization covariates" or "observables"
 
@@ -465,7 +465,8 @@ A decent sample size calculation will help you identify whether you are likely t
 ![](images/golden_ticket.png){width=30%}
 
 
-## Things you just learned (or reviewed)
+
+# Things you just learned (or reviewed)
 - Three types of variables in test data
     - Treatment (x's)  
     - Response (y's)  
