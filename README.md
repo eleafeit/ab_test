@@ -1,7 +1,8 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
 ---
 # Advanced A/B Testing Workshop
 

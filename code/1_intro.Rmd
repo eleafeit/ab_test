@@ -4,6 +4,8 @@ author: "Elea McDonnell Feit"
 date: "6/16/2019"
 output:
   ioslides_presentation: default
+  powerpoint_presentation: default
+  beamer_presentation: default
 subtitle: Introduction
 widescreen: yes
 ---

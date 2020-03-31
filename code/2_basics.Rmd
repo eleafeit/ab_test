@@ -1,10 +1,13 @@
 ---
-title: 'Advanced AB Testing'
-subtitle: "Test Analysis Basics"
+title: "Advanced AB Testing"
+incremental: yes
 date: "6/16/2019"
-output: ioslides_presentation
-widescreen: true
-incremental: true
+output:
+  powerpoint_presentation: default
+  ioslides_presentation: default
+  beamer_presentation: default
+subtitle: Test Analysis Basics
+widescreen: yes
 ---
 
 ```{r setup, include=FALSE}
